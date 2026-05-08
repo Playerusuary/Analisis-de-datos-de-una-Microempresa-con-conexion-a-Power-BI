@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="paginas.css"/>
+</head>
+<body>
+
+  <div class="contenido">
+
+    <p class="sec-label">Resumen del día</p>
+
+    <div class="kpi-row">
+      <div class="kpi g">
+        <div class="kpi-val" id="kpiVentas">$0</div>
+        <div class="kpi-lbl">Ventas hoy</div>
+      </div>
+      <div class="kpi a">
+        <div class="kpi-val" id="kpiStock">0</div>
+        <div class="kpi-lbl">En stock</div>
+      </div>
+      <div class="kpi r">
+        <div class="kpi-val" id="kpiStockBajo">0</div>
+        <div class="kpi-lbl">Stock bajo</div>
+      </div>
+      <div class="kpi w">
+        <div class="kpi-val" id="kpiOrdenes">0</div>
+        <div class="kpi-lbl">Órdenes hoy</div>
+      </div>
+    </div>
+
+    <div class="row2">
+
+      <div class="card">
+        <div class="card-tit">Estado de inventario</div>
+        <div id="listaInventario"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-tit">Últimas órdenes</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Qty</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaOrdenes"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="Inicio.js"></script>
+</body>
+</html>

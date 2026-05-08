@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La Lonja del Vecino</title>
+  <link rel="stylesheet" href="Ventana.css"/>
+</head>
+<body>
+
+  <div class="shell">
+
+    <aside class="sidebar">
+      <div class="logo-area">
+        <div class="logo-ring">
+          <img src="../assets/logo_negocio.png" alt="Logo La Lonja del Vecino"/>
+        </div>
+        <div>
+          <span class="logo-nombre">La Lonja del Vecino</span>
+          <span class="logo-sub">San Nicolás · Desde 2024</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item activo" data-pagina="Inicio">
+          <i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard
+        </a>
+        <a class="nav-item" data-pagina="Inventario">
+          <i class="ti ti-package" aria-hidden="true"></i>Inventario
+        </a>
+        <a class="nav-item" data-pagina="Ventas">
+          <i class="ti ti-shopping-cart" aria-hidden="true"></i>Ventas
+        </a>
+        <a class="nav-item" data-pagina="Graficos">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i>Gráficos
+        </a>
+        <a class="nav-item" data-pagina="Exportar">
+          <i class="ti ti-upload" aria-hidden="true"></i>Exportar
+        </a>
+      </nav>
+
+      <div class="sidebar-pie">ABARROTES · FRUTAS · VERDURAS</div>
+    </aside>
+
+    <div class="principal">
+      <header class="topbar">
+        <span class="topbar-titulo" id="topbarTitulo">Dashboard general</span>
+        <span class="topbar-fecha" id="topbarFecha"></span>
+      </header>
+      <main class="contenido">
+        <iframe id="marco" src="../paginas/Inicio.html" frameborder="0"></iframe>
+      </main>
+    </div>
+
+  </div>
+
+  <script src="Ventana.js"></script>
+</body>
+</html>

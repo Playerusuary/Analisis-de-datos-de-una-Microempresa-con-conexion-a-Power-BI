@@ -1,0 +1,129 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #FFFFFF;
+  padding: 18px;
+}
+
+.sec-label {
+  font-size: 9px;
+  color: #7A6050;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.kpi {
+  background: #F7F3EF;
+  border: 1px solid #E0D5C8;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.kpi.g { border-top: 3px solid #2E7D32; }
+.kpi.a { border-top: 3px solid #D4A017; }
+.kpi.r { border-top: 3px solid #C0392B; }
+.kpi.w { border-top: 3px solid #6B3A1F; }
+
+.kpi-val {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.kpi.g .kpi-val { color: #2E7D32; }
+.kpi.a .kpi-val { color: #B8860B; }
+.kpi.r .kpi-val { color: #C0392B; }
+.kpi.w .kpi-val { color: #6B3A1F; }
+
+.kpi-lbl {
+  font-size: 9px;
+  color: #7A6050;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.card {
+  background: #F7F3EF;
+  border: 1px solid #E0D5C8;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card-tit {
+  font-size: 9px;
+  color: #7A6050;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0D5C8;
+}
+
+.stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #EDE8E2;
+  font-size: 12px;
+  color: #1A0E05;
+}
+
+.stock-row:last-child { border-bottom: none; }
+
+.low  { color: #C0392B; font-weight: 600; }
+.ok   { color: #2E7D32; font-weight: 600; }
+.warn { color: #B8860B; font-weight: 600; }
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tbl th {
+  color: #7A6050;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: left;
+  padding: 0 0 8px;
+  border-bottom: 1px solid #E0D5C8;
+}
+
+.tbl td {
+  padding: 7px 0;
+  color: #1A0E05;
+  border-bottom: 1px solid #EDE8E2;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge.e { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+.badge.p { background: #FFF8E1; color: #B8860B; border: 1px solid #FFE082; }
+.badge.c { background: #FFEBEE; color: #C0392B; border: 1px solid #EF9A9A; }
