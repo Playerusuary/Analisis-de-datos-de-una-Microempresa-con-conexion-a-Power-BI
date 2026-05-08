@@ -1,41 +1,65 @@
--- 1. Tabla de Categorías
+-- 1. Categorías
 CREATE TABLE categorias (
-    id_categoria SERIAL PRIMARY KEY,
-    nombre_categoria VARCHAR(50) NOT NULL
+    id_categoria INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre_categoria TEXT NOT NULL
 );
 
--- 2. Tabla de Proveedores
+-- 2. Proveedores
 CREATE TABLE proveedores (
-    id_proveedor SERIAL PRIMARY KEY,
-    nombre_empresa VARCHAR(100) NOT NULL,
-    contacto_ejecutivo VARCHAR(100)
+    id_proveedor INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre_empresa TEXT NOT NULL
 );
 
--- 3. Tabla de Productos (Corazón del negocio)
+-- 3. Productos
 CREATE TABLE productos (
-    id_producto SERIAL PRIMARY KEY,
-    nombre_producto VARCHAR(100) NOT NULL,
-    id_categoria INT REFERENCES categorias(id_categoria),
-    id_proveedor INT REFERENCES proveedores(id_proveedor),
-    precio_costo DECIMAL(10,2) NOT NULL, -- Lo que le cuesta al dueño
-    precio_venta DECIMAL(10,2) NOT NULL, -- Lo que paga el cliente
-    stock_actual INT DEFAULT 0,
-    punto_reorden INT DEFAULT 5        -- Alerta cuando queda poco
+    id_producto INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre_producto TEXT NOT NULL,
+    id_categoria INTEGER,
+    id_proveedor INTEGER,
+    precio_costo REAL NOT NULL,
+    precio_venta REAL NOT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES categorias (id_categoria),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedores (id_proveedor)
 );
 
--- 4. Tabla de Ventas (Encabezado)
+-- 4. Ventas
 CREATE TABLE ventas (
-    id_venta SERIAL PRIMARY KEY,
-    fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_venta DECIMAL(10,2),
-    metodo_pago VARCHAR(20) -- Efectivo, Tarjeta, Transferencia
+    id_venta INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_venta DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total_venta REAL DEFAULT 0,
+    metodo_pago TEXT
 );
 
--- 5. Detalle de Ventas (El ticket)
+-- 5. Detalle de Ventas
 CREATE TABLE detalle_ventas (
-    id_detalle SERIAL PRIMARY KEY,
-    id_venta INT REFERENCES ventas(id_venta),
-    id_producto INT REFERENCES productos(id_producto),
-    cantidad INT NOT NULL,
-    precio_unitario_momento DECIMAL(10,2) -- Se guarda por si el precio sube después
+    id_detalle INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_venta INTEGER,
+    id_producto INTEGER,
+    cantidad INTEGER NOT NULL,
+    precio_unitario_venta REAL,
+    subtotal REAL,
+    FOREIGN KEY (id_venta) REFERENCES ventas (id_venta),
+    FOREIGN KEY (id_producto) REFERENCES productos (id_producto)
 );
+
+-- 6. Compras de Inventario (Restock)
+CREATE TABLE inventario_compras (
+    id_compra INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_producto INTEGER,
+    cantidad_cajas INTEGER NOT NULL,
+    unidades_totales INTEGER NOT NULL,
+    fecha_compra DATETIME DEFAULT CURRENT_TIMESTAMP,
+    costo_total_compra REAL,
+    FOREIGN KEY (id_producto) REFERENCES productos (id_producto)
+);
+
+-- 7. Almacén
+CREATE TABLE almacen_stock (
+    id_producto INTEGER PRIMARY KEY,
+    cantidad_disponible INTEGER DEFAULT 0,
+    ultima_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_producto) REFERENCES productos (id_producto)
+);
+
+INSERT INTO almacen_stock (id_producto, cantidad_disponible)
+SELECT id_producto, 100 FROM productos;

@@ -1,4 +1,4 @@
-const CLAVE_CORRECTA = 'Admin1234'
+const CLAVE_CORRECTA = 'admin123'
 const MAX_INTENTOS   = 5
 let intentos = 0
 
@@ -23,7 +23,7 @@ function validarAcceso() {
   }
 
   if (clave === CLAVE_CORRECTA) {
-    window.electron.navegar('frontend/vistas/Ventana.html')
+    window.location.href = '../../vistas/Ventana.html'
   } else {
     intentos++
     const restantes = MAX_INTENTOS - intentos
