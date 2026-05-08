@@ -1,0 +1,151 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #6B3A1F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.pantalla {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.contenido {
+  width: 320px;
+  text-align: center;
+}
+
+.icono-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2.5px solid #D4A017;
+  background: #5A1D06;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  overflow: hidden;
+}
+
+.icono-ring img {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: #D4A017;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+
+.subtitulo {
+  font-size: 10px;
+  color: #F5D9C8;
+  opacity: 0.6;
+  letter-spacing: 2px;
+  margin-bottom: 28px;
+}
+
+.panel {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 28px 24px;
+  margin-bottom: 20px;
+}
+
+.etiqueta {
+  display: block;
+  font-size: 10px;
+  color: #7A6050;
+  letter-spacing: 2px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.campo {
+  display: flex;
+  align-items: center;
+  background: #F7F3EF;
+  border: 1.5px solid #E0D5C8;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 12px;
+  gap: 10px;
+  margin-bottom: 6px;
+  transition: border-color 0.15s;
+}
+
+.campo.activo {
+  border-color: #8B2E0F;
+}
+
+.campo-icono {
+  flex-shrink: 0;
+}
+
+.campo input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #1A0E05;
+  font-size: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  letter-spacing: 4px;
+}
+
+.campo input::placeholder {
+  color: #C8A88A;
+  letter-spacing: 4px;
+  font-size: 20px;
+}
+
+.error {
+  font-size: 11px;
+  color: #C0392B;
+  min-height: 18px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.btn-ingresar {
+  width: 100%;
+  height: 44px;
+  background: #8B2E0F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+  transition: background 0.15s;
+}
+
+.btn-ingresar:hover  { background: #A03510; }
+.btn-ingresar:active { background: #6E2409; }
+
+.pie {
+  font-size: 10px;
+  color: #F5D9C8;
+  opacity: 0.35;
+  letter-spacing: 1.5px;
+}

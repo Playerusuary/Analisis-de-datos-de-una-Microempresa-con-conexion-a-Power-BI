@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso — La Lonja del Vecino</title>
+  <link rel="stylesheet" href="Acceso.css"/>
+</head>
+<body>
+
+  <div class="pantalla">
+    <div class="contenido">
+
+      <div class="icono-ring">
+        <img src="../assets/logo_negocio.png" alt="Logo La Lonja del Vecino"/>
+      </div>
+
+      <p class="titulo">ACCESO SUPERVISOR</p>
+      <p class="subtitulo">SISTEMA DE LOGÍSTICA</p>
+
+      <div class="panel">
+
+        <label class="etiqueta" for="inputClave">CONTRASEÑA</label>
+
+        <div class="campo" id="campoClave">
+          <svg class="campo-icono" xmlns="http://www.w3.org/2000/svg"
+               width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="#8B2E0F" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input type="password"
+                 id="inputClave"
+                 placeholder="••••••••"
+                 autocomplete="off"/>
+        </div>
+
+        <p class="error" id="msgError"></p>
+
+        <button class="btn-ingresar" id="btnIngresar">INGRESAR</button>
+
+      </div>
+
+      <p class="pie">Acceso restringido · Solo personal autorizado</p>
+
+    </div>
+  </div>
+
+  <script src="Acceso.js"></script>
+</body>
+</html>
