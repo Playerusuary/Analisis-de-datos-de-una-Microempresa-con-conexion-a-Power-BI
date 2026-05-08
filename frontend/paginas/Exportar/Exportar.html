@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exportar</title>
+  <link rel="stylesheet" href="../paginas.css"/>
+  <link rel="stylesheet" href="Exportar.css"/>
+</head>
+<body>
+
+  <p class="sec-label">Exportar a Power BI</p>
+
+  <div class="export-card">
+
+    <div class="export-icono">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+           viewBox="0 0 24 24" fill="none" stroke="#8B2E0F"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </div>
+
+    <h2 class="export-titulo">Base de datos</h2>
+    <p class="export-desc">
+      Descarga el archivo <strong>logistica.db</strong> con todos los datos
+      actuales del sistema listos para conectar con Power BI.
+    </p>
+
+    <button class="btn-descargar" id="btnDescargar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar base de datos
+    </button>
+
+    <div class="separador"></div>
+
+    <button class="btn-instrucciones" id="btnInstrucciones">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4"/><path d="M12 8h.01"/>
+      </svg>
+      Instrucciones para visualizar el dataset en Power BI
+    </button>
+
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+
+      <div class="modal-header">
+        <h3 class="modal-titulo">Conectar con Power BI</h3>
+        <button class="modal-cerrar" id="modalCerrar" aria-label="Cerrar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-cuerpo">
+
+        <p class="modal-intro">
+          Puedes conectar Power BI directamente al archivo <strong>logistica.db</strong>
+          para obtener reportes en tiempo real cada vez que abras o actualices el reporte.
+        </p>
+
+        <div class="paso">
+          <div class="paso-num">1</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Descarga el conector ODBC para SQLite</p>
+            <p class="paso-desc">
+              Instala el driver <strong>SQLite ODBC Driver</strong> desde
+              <em>sqliteodbc.com</em>. Es gratuito y compatible con Windows.
+            </p>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">2</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Abre Power BI Desktop</p>
+            <p class="paso-desc">
+              Ve a <strong>Inicio → Obtener datos → ODBC</strong>.
+              En el menú desplegable selecciona el driver de SQLite que instalaste.
+            </p>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">3</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Apunta al archivo logistica.db</p>
+            <p class="paso-desc">
+              En la cadena de conexión escribe la ruta completa al archivo,
+              por ejemplo: <code>Database=C:\ruta\base\logistica.db</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">4</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Selecciona las tablas</p>
+            <p class="paso-desc">
+              Power BI mostrará todas las tablas disponibles. Selecciona las que
+              necesites — inventario, ventas, órdenes — y haz clic en <strong>Cargar</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">5</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Actualización en tiempo real</p>
+            <p class="paso-desc">
+              Cada vez que abras el reporte en Power BI Desktop haz clic en
+              <strong>Actualizar</strong> para traer los datos más recientes del sistema.
+              Para automatizarlo, configura una <strong>Actualización programada</strong>
+              desde Power BI Service.
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-nota">
+          El archivo <strong>logistica.db</strong> debe estar accesible desde
+          la misma computadora donde corre Power BI. Si lo mueves de ubicación,
+          deberás actualizar la ruta de conexión.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="Exportar.js"></script>
+</body>
+</html>

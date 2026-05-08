@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ventas</title>
+  <link rel="stylesheet" href="../paginas.css"/>
+  <link rel="stylesheet" href="Ventas.css"/>
+</head>
+<body>
+
+  <p class="sec-label">Registro de ventas</p>
+
+  <div class="resumen">
+    <div class="res-card g">
+      <div class="res-val" id="resVentas">$0</div>
+      <div class="res-lbl">Ventas hoy</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="buscar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+           viewBox="0 0 24 24" fill="none" stroke="#7A6050"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="inputBuscar" placeholder="Buscar venta o producto..."/>
+    </div>
+    <button class="btn-add" id="btnRegistrar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+      </svg>
+      Registrar venta
+    </button>
+  </div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio unit.</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="tablaVentas"></tbody>
+    </table>
+  </div>
+
+  <script src="Ventas.js"></script>
+</body>
+</html>
