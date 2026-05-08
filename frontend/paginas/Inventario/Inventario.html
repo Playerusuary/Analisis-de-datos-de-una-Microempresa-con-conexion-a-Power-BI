@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventario</title>
+  <link rel="stylesheet" href="../paginas.css"/>
+  <link rel="stylesheet" href="Inventario.css"/>
+</head>
+<body>
+
+  <p class="sec-label">Inventario de productos</p>
+
+  <div class="resumen">
+    <div class="res-card g">
+      <div class="res-val" id="resTotal">0</div>
+      <div class="res-lbl">Total en stock</div>
+    </div>
+    <div class="res-card w">
+      <div class="res-val" id="resMedio">0</div>
+      <div class="res-lbl">Stock medio</div>
+    </div>
+    <div class="res-card r">
+      <div class="res-val" id="resBajo">0</div>
+      <div class="res-lbl">Stock bajo</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="buscar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+           viewBox="0 0 24 24" fill="none" stroke="#7A6050"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="inputBuscar" placeholder="Buscar producto..."/>
+    </div>
+    <select class="filtro" id="filtroCategoria">
+      <option value="">Todas las categorías</option>
+      <option value="Abarrotes">Abarrotes</option>
+      <option value="Frutas">Frutas</option>
+      <option value="Verduras">Verduras</option>
+    </select>
+    <select class="filtro" id="filtroStock">
+      <option value="">Todo el stock</option>
+      <option value="low">Stock bajo</option>
+      <option value="warn">Stock medio</option>
+      <option value="ok">Stock normal</option>
+    </select>
+    <button class="btn-add" id="btnAgregar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+      </svg>
+      Agregar producto
+    </button>
+  </div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Cantidad</th>
+          <th>Precio unitario</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaInventario"></tbody>
+    </table>
+  </div>
+
+  <script src="Inventario.js"></script>
+</body>
+</html>

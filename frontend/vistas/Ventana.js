@@ -28,6 +28,6 @@ navItems.forEach(item => {
     item.classList.add('activo')
 
     topbarTitulo.textContent = titulos[pagina] || pagina
-    marco.src = `../paginas/${pagina}.html`
+    marco.src = `../paginas/${pagina}/${pagina}.html`
   })
 })
