@@ -5,54 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard</title>
   <link rel="stylesheet" href="../paginas.css"/>
+  <link rel="stylesheet" href="Inicio.css"/>
 </head>
 <body>
 
-  <div class="contenido">
+  <div class="dash-header">
+    <p class="sec-label">Resumen del día anterior</p>
+    <span class="fecha-ayer" id="fechaAyer"></span>
+  </div>
 
-    <p class="sec-label">Resumen del día</p>
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi g">
+      <div class="kpi-val" id="kpiVentas">—</div>
+      <div class="kpi-lbl">Ventas totales</div>
+    </div>
+    <div class="kpi r">
+      <div class="kpi-val" id="kpiStockBajo">—</div>
+      <div class="kpi-lbl">Productos stock bajo</div>
+    </div>
+    <div class="kpi w">
+      <div class="kpi-val" id="kpiCumplidas">—</div>
+      <div class="kpi-lbl">Ventas cumplidas</div>
+    </div>
+  </div>
 
-    <div class="kpi-row">
-      <div class="kpi g">
-        <div class="kpi-val" id="kpiVentas">$0</div>
-        <div class="kpi-lbl">Ventas hoy</div>
-      </div>
-      <div class="kpi a">
-        <div class="kpi-val" id="kpiStock">0</div>
-        <div class="kpi-lbl">En stock</div>
-      </div>
-      <div class="kpi r">
-        <div class="kpi-val" id="kpiStockBajo">0</div>
-        <div class="kpi-lbl">Stock bajo</div>
-      </div>
-      <div class="kpi w">
-        <div class="kpi-val" id="kpiOrdenes">0</div>
-        <div class="kpi-lbl">Órdenes hoy</div>
+  <!-- Fila inferior -->
+  <div class="row2">
+
+    <!-- Stock bajo y crítico -->
+    <div class="card">
+      <div class="card-tit">Stock bajo y crítico</div>
+      <div id="listaStock">
+        <div class="cargando">Cargando...</div>
       </div>
     </div>
 
-    <div class="row2">
-
-      <div class="card">
-        <div class="card-tit">Estado de inventario</div>
-        <div id="listaInventario"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-tit">Últimas órdenes</div>
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Qty</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tablaOrdenes"></tbody>
-        </table>
-      </div>
-
+    <!-- Productos vendidos ayer -->
+    <div class="card">
+      <div class="card-tit">Productos vendidos ayer</div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Uds.</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProductos"></tbody>
+      </table>
     </div>
+
   </div>
 
   <script src="Inicio.js"></script>

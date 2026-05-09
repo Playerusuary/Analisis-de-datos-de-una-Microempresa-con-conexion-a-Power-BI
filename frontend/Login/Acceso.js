@@ -17,29 +17,23 @@ btnIngresar.addEventListener('click', validarAcceso)
 function validarAcceso() {
   const clave = inputClave.value.trim()
 
-  if (!clave) {
-    mostrarError('Ingresa tu contraseña.')
-    return
-  }
+  if (!clave) { mostrarError('Ingresa tu contraseña.'); return }
 
   if (clave === CLAVE_CORRECTA) {
-    window.location.href = '../../vistas/Ventana.html'
+    // ✅ Navegar al dashboard principal
+    window.electron.navegar('frontend/vistas/Ventana.html')
   } else {
     intentos++
     const restantes = MAX_INTENTOS - intentos
-
     if (intentos >= MAX_INTENTOS) {
-      mostrarError('Demasiados intentos. Cerrando sistema...')
+      mostrarError('Demasiados intentos. Cerrando...')
       setTimeout(() => window.electron.cerrarApp(), 2000)
       return
     }
-
     mostrarError(`Contraseña incorrecta · ${restantes} intento(s) restante(s)`)
     inputClave.value = ''
     inputClave.focus()
   }
 }
 
-function mostrarError(msg) {
-  msgError.textContent = msg
-}
+function mostrarError(msg) { msgError.textContent = msg }

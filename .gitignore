@@ -1,0 +1,50 @@
+# ── Node / Electron ───────────────────────────────────────
+node_modules/
+contenedor/dist/
+contenedor/.cache/
+*.log
+npm-debug.log*
+
+# ── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+backend/venv/
+backend/env/
+*.egg-info/
+dist/
+build/
+
+# ── Base de datos ─────────────────────────────────────────
+# Comenta esta línea si quieres incluir la BD en el repo
+base/*.db
+
+# ── Sistema operativo ─────────────────────────────────────
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── VS Code ───────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.log
+
+# ── Electron Builder ──────────────────────────────────────
+contenedor/dist/
+out/
+release/
+
+# ── Variables de entorno ──────────────────────────────────
+.env
+.env.local
+.env.production
+
+# base/*.db   ← comentar para incluir la BD

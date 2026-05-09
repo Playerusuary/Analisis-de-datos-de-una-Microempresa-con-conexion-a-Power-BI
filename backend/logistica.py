@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from calculos import (
     rango_semanal, rango_mensual, rango_anual,
+    query_resumen_ayer, query_stock_bajo, query_productos_vendidos_ayer,
     query_ganancias, query_ventas, query_ventas_productos,
     query_ranking, query_flujo_caja, query_mermas
 )
@@ -11,7 +12,7 @@ MESES = ['Ene','Feb','Mar','Abr','May','Jun',
          'Jul','Ago','Sep','Oct','Nov','Dic']
 DIAS  = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
 
-# ── Helpers de formato ───────────────────────────────────
+def r2(v): return round(v or 0, 2)
 
 def fmt_label(valor, periodo):
     try:
@@ -27,73 +28,69 @@ def fmt_label(valor, periodo):
     except:
         return valor
 
-def r2(v):
-    return round(v or 0, 2)
+def _rango(periodo, anio, mes, semana):
+    if periodo == 'semanal':
+        return rango_semanal(anio, mes, semana)
+    elif periodo == 'mensual':
+        return rango_mensual(anio, mes)
+    else:
+        return rango_anual(anio)
 
-# ── Ganancias ────────────────────────────────────────────
+# ── Dashboard ─────────────────────────────────────────────
+
+def dashboard_resumen():
+    return query_resumen_ayer()
+
+def dashboard_stock_bajo():
+    return query_stock_bajo()
+
+def dashboard_productos_ayer():
+    return query_productos_vendidos_ayer()
+
+# ── Gráficos ──────────────────────────────────────────────
 
 def ganancias(periodo, anio, mes, semana):
     inicio, fin = _rango(periodo, anio, mes, semana)
-    fmt = '%Y-%m-%d' if periodo in ('semanal', 'mensual') else '%Y-%m'
-    rows = query_ganancias(inicio, fin, fmt, fmt)
-
+    fmt  = '%Y-%m-%d' if periodo in ('semanal','mensual') else '%Y-%m'
+    rows = query_ganancias(inicio, fin, fmt)
     labels, ingresos, costos, ganancias_netas = [], [], [], []
     for row in rows:
         labels.append(fmt_label(row[0], periodo))
-        ing = r2(row[1])
-        cos = r2(row[2])
-        ingresos.append(ing)
-        costos.append(cos)
+        ing = r2(row[1]); cos = r2(row[2])
+        ingresos.append(ing); costos.append(cos)
         ganancias_netas.append(r2(ing - cos))
-
     return {'labels': labels, 'ingresos': ingresos,
             'costos': costos, 'ganancias': ganancias_netas}
 
-# ── Ventas totales ───────────────────────────────────────
-
 def ventas(periodo, anio, mes, semana):
     inicio, fin = _rango(periodo, anio, mes, semana)
-    fmt = '%Y-%m-%d' if periodo in ('semanal', 'mensual') else '%Y-%m'
+    fmt  = '%Y-%m-%d' if periodo in ('semanal','mensual') else '%Y-%m'
     rows = query_ventas(inicio, fin, fmt)
-
     labels, totales, num_ventas = [], [], []
     for row in rows:
         labels.append(fmt_label(row[0], periodo))
-        totales.append(r2(row[1]))
-        num_ventas.append(row[2])
-
+        totales.append(r2(row[1])); num_ventas.append(row[2])
     return {'labels': labels, 'totales': totales, 'num_ventas': num_ventas}
-
-# ── Venta de productos (pastel) ──────────────────────────
 
 def ventas_productos(periodo, anio, mes, semana):
     inicio, fin = _rango(periodo, anio, mes, semana)
     rows = query_ventas_productos(inicio, fin)
-    return {
-        'labels':   [r[0] for r in rows],
-        'unidades': [r[1] for r in rows],
-        'ingresos': [r2(r[2]) for r in rows]
-    }
-
-# ── Ranking top 5 ────────────────────────────────────────
+    return {'labels':   [r[0] for r in rows],
+            'unidades': [r[1] for r in rows],
+            'ingresos': [r2(r[2]) for r in rows]}
 
 def ranking(periodo, anio, mes, semana):
     inicio, fin = _rango(periodo, anio, mes, semana)
     rows = query_ranking(inicio, fin)
-    return {
-        'labels':    [r[0] for r in rows],
-        'ingresos':  [r2(r[1]) for r in rows],
-        'costos':    [r2(r[2]) for r in rows],
-        'ganancias': [r2(r[3]) for r in rows]
-    }
-
-# ── Flujo de caja ────────────────────────────────────────
+    return {'labels':    [r[0] for r in rows],
+            'ingresos':  [r2(r[1]) for r in rows],
+            'costos':    [r2(r[2]) for r in rows],
+            'ganancias': [r2(r[3]) for r in rows]}
 
 def flujo_caja(periodo, anio, mes, semana):
-    inicio, fin = _rango(periodo, anio, mes, semana)
+    inicio, fin   = _rango(periodo, anio, mes, semana)
     ventas_d, compras_d = query_flujo_caja(inicio, fin)
-
-    meses  = sorted(set(list(ventas_d.keys()) + list(compras_d.keys())))
+    meses = sorted(set(list(ventas_d.keys()) + list(compras_d.keys())))
     labels, ventas_l, compras_l = [], [], []
     for m in meses:
         try:
@@ -103,30 +100,15 @@ def flujo_caja(periodo, anio, mes, semana):
             labels.append(m)
         ventas_l.append(r2(ventas_d.get(m, 0)))
         compras_l.append(r2(compras_d.get(m, 0)))
-
     return {'labels': labels, 'ventas': ventas_l, 'compras': compras_l}
-
-# ── Mermas ───────────────────────────────────────────────
 
 def mermas():
     rows = query_mermas()
-    return {
-        'labels':   [r[0] for r in rows],
-        'stock':    [r[1] for r in rows],
-        'vendidos': [r[2] for r in rows]
-    }
+    return {'labels':   [r[0] for r in rows],
+            'stock':    [r[1] for r in rows],
+            'vendidos': [r[2] for r in rows]}
 
-# ── Helper rango ─────────────────────────────────────────
-
-def _rango(periodo, anio, mes, semana):
-    if periodo == 'semanal':
-        return rango_semanal(anio, mes, semana)
-    elif periodo == 'mensual':
-        return rango_mensual(anio, mes)
-    else:
-        return rango_anual(anio)
-
-# ── Entry point ──────────────────────────────────────────
+# ── Entry point ───────────────────────────────────────────
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -140,12 +122,17 @@ if __name__ == '__main__':
     semana  = int(sys.argv[5]) if len(sys.argv) > 5 else 1
 
     funciones = {
-        'ganancias':        lambda: ganancias(periodo, anio, mes, semana),
-        'ventas':           lambda: ventas(periodo, anio, mes, semana),
-        'ventas_productos': lambda: ventas_productos(periodo, anio, mes, semana),
-        'ranking':          lambda: ranking(periodo, anio, mes, semana),
-        'flujo_caja':       lambda: flujo_caja(periodo, anio, mes, semana),
-        'mermas':           lambda: mermas()
+        # Dashboard
+        'dashboard_resumen':   lambda: dashboard_resumen(),
+        'dashboard_stock':     lambda: dashboard_stock_bajo(),
+        'dashboard_productos': lambda: dashboard_productos_ayer(),
+        # Gráficos
+        'ganancias':           lambda: ganancias(periodo, anio, mes, semana),
+        'ventas':              lambda: ventas(periodo, anio, mes, semana),
+        'ventas_productos':    lambda: ventas_productos(periodo, anio, mes, semana),
+        'ranking':             lambda: ranking(periodo, anio, mes, semana),
+        'flujo_caja':          lambda: flujo_caja(periodo, anio, mes, semana),
+        'mermas':              lambda: mermas()
     }
 
     if cmd in funciones:

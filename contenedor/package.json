@@ -1,0 +1,32 @@
+{
+  "name": "lonja-del-vecino",
+  "version": "1.0.0",
+  "description": "Sistema de logística — La Lonja del Vecino",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.lalonjadelvecino.sistema",
+    "productName": "La Lonja del Vecino",
+    "win": {
+      "target": "nsis",
+      "icon": "frontend/assets/logo_negocio.png"
+    },
+    "directories": {
+      "output": "contenedor/dist"
+    },
+    "files": [
+      "frontend/**",
+      "backend/**",
+      "base/**",
+      "conexiones/**",
+      "contenedor/main.js"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
