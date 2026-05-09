@@ -3,14 +3,12 @@ const path  = require('path')
 const fs    = require('fs')
 const { spawn } = require('child_process')
 
-// ── Navegación ────────────────────────────────────────────
 ipcMain.on('navegar', (event, ruta) => {
   const win = BrowserWindow.getFocusedWindow()
   if (win) win.loadFile(path.join(__dirname, '..', ruta))
 })
 
-// ── Controles de ventana ──────────────────────────────────
-ipcMain.on('cerrar-app',  () => {
+ipcMain.on('cerrar-app', () => {
   const win = BrowserWindow.getFocusedWindow()
   if (win) win.close()
 })
@@ -20,37 +18,59 @@ ipcMain.on('minimizar', () => {
   if (win) win.minimize()
 })
 
-// ── Llamada a Python ──────────────────────────────────────
+// ── Detectar comando Python correcto (python vs py) ────────
+function getPythonCmd() {
+  return new Promise((resolve) => {
+    const test = spawn('python', ['--version'])
+    test.on('error', () => resolve('py'))
+    test.on('close', (code) => resolve(code === 0 ? 'python' : 'py'))
+  })
+}
+
+let pythonCmd = null
+
 ipcMain.handle('ejecutar-python', async (event, script, args = []) => {
+  if (!pythonCmd) pythonCmd = await getPythonCmd()
+
+  const scriptPath = path.join(__dirname, '../backend/', script)
+  console.log(`[IPC] ${pythonCmd} "${scriptPath}"`, args)
+
   return new Promise((resolve, reject) => {
-    const scriptPath = path.join(__dirname, '../backend/', script)
-    const proceso    = spawn('python', [scriptPath, ...args.map(String)])
+    const proceso = spawn(pythonCmd, [scriptPath, ...args.map(String)])
 
     let salida = ''
     let error  = ''
 
-    proceso.stdout.on('data', (data) => salida += data.toString())
-    proceso.stderr.on('data', (data) => error  += data.toString())
+    const timer = setTimeout(() => {
+      proceso.kill()
+      reject(new Error(`Timeout 30s: ${script}`))
+    }, 30000)
 
-    proceso.on('close', (codigo) => {
+    proceso.stdout.on('data', d => salida += d.toString())
+    proceso.stderr.on('data', d => {
+      error += d.toString()
+      console.error('[Python stderr]', d.toString().trim())
+    })
+
+    proceso.on('close', codigo => {
+      clearTimeout(timer)
+      console.log(`[IPC] ${script} código=${codigo} stdout="${salida.slice(0,150)}"`)
       if (codigo === 0) {
-        try {
-          resolve(JSON.parse(salida))
-        } catch {
-          reject(new Error(`JSON inválido: ${salida}`))
-        }
+        try   { resolve(JSON.parse(salida)) }
+        catch { reject(new Error('JSON inválido: ' + salida.slice(0, 200))) }
       } else {
-        reject(new Error(error || `Python salió con código ${codigo}`))
+        reject(new Error(error || `Python código ${codigo}`))
       }
     })
 
-    proceso.on('error', (err) => {
-      reject(new Error(`No se pudo iniciar Python: ${err.message}`))
+    proceso.on('error', err => {
+      clearTimeout(timer)
+      console.error('[IPC spawn error]', err.message)
+      reject(new Error('No se pudo iniciar Python: ' + err.message))
     })
   })
 })
 
-// ── Descargar base de datos ───────────────────────────────
 ipcMain.handle('descargar-db', async () => {
   const win = BrowserWindow.getFocusedWindow()
   const { filePath } = await dialog.showSaveDialog(win, {
@@ -62,8 +82,7 @@ ipcMain.handle('descargar-db', async () => {
   if (!filePath) return { ok: false, msg: 'Cancelado' }
 
   try {
-    const origen = path.join(__dirname, '../base/simulacion.db')
-    fs.copyFileSync(origen, filePath)
+    fs.copyFileSync(path.join(__dirname, '../base/simulacion.db'), filePath)
     return { ok: true, msg: `Guardado en: ${filePath}` }
   } catch (err) {
     return { ok: false, msg: err.message }

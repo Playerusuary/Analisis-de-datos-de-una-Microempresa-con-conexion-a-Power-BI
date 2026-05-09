@@ -1,7 +1,29 @@
 import sqlite3
+import os
 from datetime import datetime, timedelta
 
-DB_PATH = '../base/simulacion.db'
+# Ruta absoluta — funciona desde cualquier lugar que lo llame Electron
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def _resolver_db():
+    """
+    Busca simulacion.db subiendo desde la carpeta del script.
+    Jerarquía esperada: <raiz>/backend/calculos.py  →  <raiz>/base/simulacion.db
+    También tolera que la DB esté en el mismo directorio (tests / desarrollo).
+    """
+    candidatos = [
+        os.path.join(BASE_DIR, '..', 'base', 'simulacion.db'),   # producción
+        os.path.join(BASE_DIR, 'simulacion.db'),                  # fallback mismo dir
+        os.path.join(BASE_DIR, '..', 'simulacion.db'),            # fallback raíz
+    ]
+    for ruta in candidatos:
+        ruta = os.path.normpath(ruta)
+        if os.path.exists(ruta):
+            return ruta
+    # Si no se encontró, retornar la ruta esperada en producción (genera error claro)
+    return os.path.normpath(candidatos[0])
+
+DB_PATH = _resolver_db()
 
 def conectar():
     return sqlite3.connect(DB_PATH)
@@ -15,12 +37,10 @@ def hoy():
 # ── Dashboard ─────────────────────────────────────────────
 
 def query_resumen_ayer():
-    """KPIs del día anterior."""
     fecha = ayer()
     conn  = conectar()
     cur   = conn.cursor()
 
-    # Total ventas del día anterior
     cur.execute("""
         SELECT COALESCE(SUM(total_venta), 0)
         FROM ventas
@@ -28,7 +48,6 @@ def query_resumen_ayer():
     """, (fecha,))
     total_ventas = round(cur.fetchone()[0], 2)
 
-    # Ventas cumplidas (completadas/entregadas)
     cur.execute("""
         SELECT COUNT(*)
         FROM ventas
@@ -37,7 +56,6 @@ def query_resumen_ayer():
     """, (fecha,))
     ventas_cumplidas = cur.fetchone()[0]
 
-    # Productos con stock bajo (menos de 10 unidades)
     cur.execute("""
         SELECT COUNT(*)
         FROM almacen_stock
@@ -47,14 +65,13 @@ def query_resumen_ayer():
 
     conn.close()
     return {
-        'fecha':           fecha,
-        'total_ventas':    total_ventas,
+        'fecha':            fecha,
+        'total_ventas':     total_ventas,
         'ventas_cumplidas': ventas_cumplidas,
-        'stock_bajo':      stock_bajo
+        'stock_bajo':       stock_bajo
     }
 
 def query_stock_bajo():
-    """Productos con stock bajo y medio al final del día."""
     conn = conectar()
     cur  = conn.cursor()
     cur.execute("""
@@ -77,7 +94,6 @@ def query_stock_bajo():
     return [{'nombre': r[0], 'cantidad': r[1], 'nivel': r[2]} for r in rows]
 
 def query_productos_vendidos_ayer():
-    """Desglose de productos vendidos el día anterior."""
     fecha = ayer()
     conn  = conectar()
     cur   = conn.cursor()
@@ -87,8 +103,8 @@ def query_productos_vendidos_ayer():
             SUM(dv.cantidad)  as unidades,
             SUM(dv.subtotal)  as subtotal
         FROM detalle_ventas dv
-        JOIN ventas    v ON dv.id_venta     = v.id_venta
-        JOIN productos p ON dv.id_producto  = p.id_producto
+        JOIN ventas    v ON dv.id_venta    = v.id_venta
+        JOIN productos p ON dv.id_producto = p.id_producto
         WHERE DATE(v.fecha_venta) = ?
         GROUP BY p.id_producto
         ORDER BY unidades DESC
@@ -99,7 +115,7 @@ def query_productos_vendidos_ayer():
     return [{'nombre': r[0], 'unidades': r[1],
              'subtotal': round(r[2], 2)} for r in rows]
 
-# ── Rangos de fecha (para gráficos) ──────────────────────
+# ── Rangos de fecha ───────────────────────────────────────
 
 def _dias_en_mes(anio, mes):
     if mes == 12:
@@ -180,9 +196,9 @@ def query_ranking(inicio, fin):
     cur  = conn.cursor()
     cur.execute(f"""
         SELECT p.nombre_producto,
-               SUM(dv.subtotal)                               as ingresos,
-               SUM(dv.cantidad * p.precio_costo)              as costos,
-               SUM(dv.subtotal)-SUM(dv.cantidad*p.precio_costo) as ganancia
+               SUM(dv.subtotal)                                    as ingresos,
+               SUM(dv.cantidad * p.precio_costo)                   as costos,
+               SUM(dv.subtotal) - SUM(dv.cantidad * p.precio_costo) as ganancia
         FROM detalle_ventas dv
         JOIN ventas    v ON dv.id_venta     = v.id_venta
         JOIN productos p ON dv.id_producto  = p.id_producto
