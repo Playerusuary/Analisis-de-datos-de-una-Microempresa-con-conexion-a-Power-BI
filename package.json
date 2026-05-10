@@ -2,7 +2,7 @@
   "name": "lonja-del-vecino",
   "version": "1.0.0",
   "description": "Sistema de logística — La Lonja del Vecino",
-  "main": "main.js",
+  "main": "contenedor/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win"
@@ -15,18 +15,26 @@
       "icon": "frontend/assets/logo_negocio.png"
     },
     "directories": {
+      "buildResources": ".",
       "output": "contenedor/dist"
     },
     "files": [
       "frontend/**",
-      "backend/**",
       "base/**",
       "conexiones/**",
-      "contenedor/main.js"
+      "contenedor/main.js",
+      "backend/logistica.exe",
+      "backend/ventas.exe",
+      "backend/restock.exe",
+      "!backend/*.py",
+      "!backend/__pycache__/**",
+      "!backend/dist/**",
+      "!backend/build/**",
+      "!backend/*.spec"
     ]
   },
   "devDependencies": {
-    "electron": "^29.0.0",
-    "electron-builder": "^24.0.0"
+    "electron": "^29.4.6",
+    "electron-builder": "^24.13.3"
   }
 }

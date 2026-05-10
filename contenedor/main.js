@@ -2,18 +2,17 @@ const { app, BrowserWindow } = require('electron')
 const { spawn } = require('child_process')
 const path = require('path')
 
-require('../conexiones/ipc.js')
+const { resolverSync } = require('../conexiones/ipc.js')
 
 let ventana
 
 function ejecutarSincronizacion() {
-  const vScript = path.join(__dirname, '../datos/ventas.py')
-  const rScript = path.join(__dirname, '../datos/restock.py')
-
-  const ventas = spawn('python', [vScript])
+  const { cmd: vCmd, args: vArgs } = resolverSync('ventas')
+  const ventas = spawn(vCmd, vArgs)
 
   ventas.on('close', () => {
-    const restock = spawn('python', [rScript])
+    const { cmd: rCmd, args: rArgs } = resolverSync('restock')
+    const restock = spawn(rCmd, rArgs)
 
     restock.on('close', () => {
       if (ventana) ventana.webContents.send('sync-finished')
