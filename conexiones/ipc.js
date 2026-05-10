@@ -5,19 +5,11 @@ const { spawn } = require('child_process')
 
 // ── Helpers ───────────────────────────────────────────────
 
-/**
- * Devuelve la ruta al ejecutable logistica.exe (producción)
- * o al script logistica.py (desarrollo).
- */
 function resolverBackend() {
   if (app.isPackaged) {
-    // Producción: el .exe está junto a los resources
-    return {
-      cmd:  path.join(process.resourcesPath, 'backend', 'logistica.exe'),
-      args: []          // los args del comando van directo, sin script
-    }
+    const exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'backend', 'logistica.exe')
+    return { cmd: exePath, args: [] }
   } else {
-    // Desarrollo: llamar Python normal
     return {
       cmd:  'python',
       args: [path.join(__dirname, '../backend/logistica.py')]
@@ -25,16 +17,10 @@ function resolverBackend() {
   }
 }
 
-/**
- * Devuelve la ruta al ejecutable de sincronización (ventas / restock).
- * script: 'ventas' | 'restock'
- */
 function resolverSync(script) {
   if (app.isPackaged) {
-    return {
-      cmd:  path.join(process.resourcesPath, 'backend', `${script}.exe`),
-      args: []
-    }
+    const exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'backend', `${script}.exe`)
+    return { cmd: exePath, args: [] }
   } else {
     return {
       cmd:  'python',
@@ -65,8 +51,6 @@ ipcMain.on('minimizar', () => {
 ipcMain.handle('ejecutar-python', async (event, script, args = []) => {
   return new Promise((resolve, reject) => {
     const { cmd, args: baseArgs } = resolverBackend()
-    // baseArgs puede ser [] (exe) o ['ruta/logistica.py'] (dev)
-    // el primer arg de la app siempre es el comando (ej: 'ganancias')
     const proceso = spawn(cmd, [...baseArgs, script, ...args.map(String)])
 
     let salida = ''
@@ -126,9 +110,8 @@ ipcMain.handle('descargar-db', async () => {
 
   if (!filePath) return { ok: false, msg: 'Cancelado' }
 
-  // En producción la DB está en resourcesPath; en dev, en la ruta normal
   const dbOrigen = app.isPackaged
-    ? path.join(process.resourcesPath, 'base', 'simulacion.db')
+    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'base', 'simulacion.db')
     : path.join(__dirname, '../base/simulacion.db')
 
   try {
