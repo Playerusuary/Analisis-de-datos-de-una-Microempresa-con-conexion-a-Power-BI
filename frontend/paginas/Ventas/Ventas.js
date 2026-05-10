@@ -1,28 +1,61 @@
-// Datos de ejemplo — después vendrán de SQLite vía conexiones/ipc.js
-const ventas = [
-  { id: '001', producto: 'Leche entera 1L',   cantidad: 6,  precio: 22.00, estado: 'e', etiqueta: 'Entregado', fecha: '07/05/2026' },
-  { id: '002', producto: 'Pan blanco',         cantidad: 12, precio: 14.00, estado: 'e', etiqueta: 'Entregado', fecha: '07/05/2026' },
-  { id: '003', producto: 'Jabón líquido',      cantidad: 3,  precio: 28.00, estado: 'p', etiqueta: 'Pendiente', fecha: '07/05/2026' },
-  { id: '004', producto: 'Refresco 2L',        cantidad: 8,  precio: 32.00, estado: 'p', etiqueta: 'Pendiente', fecha: '07/05/2026' },
-  { id: '005', producto: 'Aceite vegetal 1L',  cantidad: 2,  precio: 35.00, estado: 'c', etiqueta: 'Cancelado', fecha: '07/05/2026' }
-]
+// ── Acceso a electron ─────────────────────────────────────────────
+const elec = window.electron ?? window.parent?.electron
 
-const tbody       = document.getElementById('tablaVentas')
-const inputBuscar = document.getElementById('inputBuscar')
+// ── Fecha de ayer ─────────────────────────────────────────────────
+const ayer = new Date()
+ayer.setDate(ayer.getDate() - 1)
+const fechaAyerISO = ayer.toISOString().slice(0, 10)
 
-// ── Total ventas hoy (solo entregadas) ───────────────────
-function calcularTotal(lista) {
-  const total = lista
-    .filter(v => v.estado === 'e')
-    .reduce((sum, v) => sum + v.cantidad * v.precio, 0)
-  document.getElementById('resVentas').textContent =
-    '$' + total.toLocaleString('es-MX', { minimumFractionDigits: 2 })
+document.getElementById('fechaAyer').textContent =
+  ayer.toLocaleDateString('es-MX', {
+    weekday: 'long', day: 'numeric',
+    month: 'long', year: 'numeric'
+  })
+
+// ── Llamada a Python ──────────────────────────────────────────────
+async function python(cmd, args = []) {
+  try {
+    return await elec.ejecutarPython('logistica.py', [cmd, ...args])
+  } catch (err) {
+    console.error(`[Ventas] Error en ${cmd}:`, err)
+    return null
+  }
 }
 
-// ── Renderizar tabla ─────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────
+function fmtPeso(n) {
+  return '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2 })
+}
+
+function fmtHora(str) {
+  try {
+    const d = new Date(str)
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+  } catch { return str }
+}
+
+// ── Estado ────────────────────────────────────────────────────────
+const tbody        = document.getElementById('tablaVentas')
+const inputBuscar  = document.getElementById('inputBuscar')
+const filtroMetodo = document.getElementById('filtroMetodo')
+
+let ventasDB = []
+
+// ── Resumen ───────────────────────────────────────────────────────
+function actualizarResumen(lista) {
+  const total    = lista.reduce((s, v) => s + v.total, 0)
+  const efectivo = lista.filter(v => v.metodo === 'Efectivo').reduce((s, v) => s + v.total, 0)
+  const tarjeta  = lista.filter(v => v.metodo === 'Tarjeta').reduce((s, v) => s + v.total, 0)
+
+  document.getElementById('resVentas').textContent   = fmtPeso(total)
+  document.getElementById('resEfectivo').textContent = fmtPeso(efectivo)
+  document.getElementById('resTarjeta').textContent  = fmtPeso(tarjeta)
+}
+
+// ── Renderizar ────────────────────────────────────────────────────
 function renderizar(lista) {
   tbody.innerHTML = ''
-  calcularTotal(lista)
+  actualizarResumen(lista)
 
   if (lista.length === 0) {
     tbody.innerHTML = `
@@ -35,36 +68,74 @@ function renderizar(lista) {
   }
 
   lista.forEach(v => {
-    const total = (v.cantidad * v.precio).toFixed(2)
+    const clase = v.metodo === 'Efectivo' ? 'efectivo' : 'tarjeta'
     const fila  = document.createElement('tr')
     fila.innerHTML = `
       <td>#${v.id}</td>
       <td>${v.producto}</td>
       <td>${v.cantidad}</td>
-      <td>$${v.precio.toFixed(2)}</td>
-      <td>$${total}</td>
-      <td><span class="badge ${v.estado}">${v.etiqueta}</span></td>
-      <td>${v.fecha}</td>
+      <td>${fmtPeso(v.precio)}</td>
+      <td>${fmtPeso(v.total)}</td>
+      <td><span class="badge ${clase}">${v.metodo}</span></td>
+      <td>${fmtHora(v.fecha)}</td>
     `
     tbody.appendChild(fila)
   })
 }
 
-// ── Búsqueda ─────────────────────────────────────────────
-inputBuscar.addEventListener('input', () => {
-  const texto = inputBuscar.value.toLowerCase()
-  const lista = ventas.filter(v =>
-    v.producto.toLowerCase().includes(texto) ||
-    v.id.includes(texto)
-  )
+// ── Filtro en memoria ─────────────────────────────────────────────
+function filtrar() {
+  const texto  = inputBuscar.value.toLowerCase()
+  const metodo = filtroMetodo.value
+
+  const lista = ventasDB.filter(v => {
+    const coincideTexto  = v.producto.toLowerCase().includes(texto) ||
+                           String(v.id).includes(texto)
+    const coincideMetodo = metodo ? v.metodo === metodo : true
+    return coincideTexto && coincideMetodo
+  })
+
   renderizar(lista)
-})
+}
 
-// ── Registrar venta — pendiente ──────────────────────────
-document.getElementById('btnRegistrar').addEventListener('click', () => {
-  // TODO: abrir modal de registro de venta
-  console.log('Registrar venta')
-})
+inputBuscar.addEventListener('input', filtrar)
+filtroMetodo.addEventListener('change', filtrar)
 
-// ── Carga inicial ─────────────────────────────────────────
-renderizar(ventas)
+// ── Carga desde BD (solo ayer) ────────────────────────────────────
+async function cargarVentas() {
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7" style="text-align:center;color:#C8A88A;padding:24px">
+        Cargando...
+      </td>
+    </tr>`
+
+  const data = await python('ventas_tabla', ['mensual',
+    ayer.getFullYear(),
+    ayer.getMonth() + 1,
+    1,
+    fechaAyerISO,
+    fechaAyerISO
+  ])
+
+  if (!data || !Array.isArray(data)) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center;color:#C0392B;padding:24px">
+          Error al cargar ventas
+        </td>
+      </tr>`
+    return
+  }
+
+  ventasDB = data
+  filtrar()
+}
+
+// ── Carga inicial ─────────────────────────────────────────────────
+cargarVentas()
+
+// ── Recargar tras sincronización ──────────────────────────────────
+if (elec?.onSyncFinished) {
+  elec.onSyncFinished(() => cargarVentas())
+}

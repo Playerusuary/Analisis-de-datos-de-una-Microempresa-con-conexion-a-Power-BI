@@ -9,12 +9,23 @@
 </head>
 <body>
 
-  <p class="sec-label">Registro de ventas</p>
+  <div class="dash-header">
+    <p class="sec-label">Ventas del día anterior</p>
+    <span class="fecha-ayer" id="fechaAyer"></span>
+  </div>
 
   <div class="resumen">
     <div class="res-card g">
-      <div class="res-val" id="resVentas">$0</div>
-      <div class="res-lbl">Ventas hoy</div>
+      <div class="res-val" id="resVentas">—</div>
+      <div class="res-lbl">Total vendido</div>
+    </div>
+    <div class="res-card b">
+      <div class="res-val" id="resEfectivo">—</div>
+      <div class="res-lbl">Efectivo</div>
+    </div>
+    <div class="res-card w">
+      <div class="res-val" id="resTarjeta">—</div>
+      <div class="res-lbl">Tarjeta</div>
     </div>
   </div>
 
@@ -27,17 +38,13 @@
         <circle cx="11" cy="11" r="8"/>
         <path d="m21 21-4.35-4.35"/>
       </svg>
-      <input type="text" id="inputBuscar" placeholder="Buscar venta o producto..."/>
+      <input type="text" id="inputBuscar" placeholder="Buscar producto..."/>
     </div>
-    <button class="btn-add" id="btnRegistrar">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-           viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-           aria-hidden="true">
-        <path d="M5 12h14"/><path d="M12 5v14"/>
-      </svg>
-      Registrar venta
-    </button>
+    <select class="filtro" id="filtroMetodo">
+      <option value="">Todos los métodos</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
   </div>
 
   <div class="card">
@@ -49,8 +56,8 @@
           <th>Cantidad</th>
           <th>Precio unit.</th>
           <th>Total</th>
-          <th>Estado</th>
-          <th>Fecha</th>
+          <th>Método de pago</th>
+          <th>Hora</th>
         </tr>
       </thead>
       <tbody id="tablaVentas"></tbody>

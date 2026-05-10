@@ -1,14 +1,15 @@
-// Datos de ejemplo — después vendrán de SQLite vía conexiones/ipc.js
-const productos = [
-  { nombre: 'Leche entera 1L',   categoria: 'Abarrotes', cantidad: 4,  precio: 22.00, estado: 'low'  },
-  { nombre: 'Arroz 1kg',         categoria: 'Abarrotes', cantidad: 52, precio: 18.50, estado: 'ok'   },
-  { nombre: 'Frijol negro 500g', categoria: 'Abarrotes', cantidad: 11, precio: 15.00, estado: 'warn' },
-  { nombre: 'Aceite vegetal 1L', categoria: 'Abarrotes', cantidad: 3,  precio: 35.00, estado: 'low'  },
-  { nombre: 'Azúcar 1kg',        categoria: 'Abarrotes', cantidad: 38, precio: 24.00, estado: 'ok'   },
-  { nombre: 'Plátano kg',        categoria: 'Frutas',    cantidad: 22, precio: 12.00, estado: 'ok'   },
-  { nombre: 'Tomate kg',         categoria: 'Verduras',  cantidad: 9,  precio: 18.00, estado: 'warn' },
-  { nombre: 'Cebolla kg',        categoria: 'Verduras',  cantidad: 15, precio: 14.00, estado: 'ok'   }
-]
+// ── Acceso a electron (funciona en iframe y en ventana directa) ───
+const elec = window.electron ?? window.parent?.electron
+
+// ── Llamada a Python ──────────────────────────────────────────────
+async function python(cmd) {
+  try {
+    return await elec.ejecutarPython('logistica.py', [cmd])
+  } catch (err) {
+    console.error(`[Inventario] Error en ${cmd}:`, err)
+    return null
+  }
+}
 
 const etiquetas = {
   ok:   { texto: 'Normal',      clase: 'ok'   },
@@ -16,19 +17,21 @@ const etiquetas = {
   low:  { texto: 'Stock bajo',  clase: 'low'  }
 }
 
-const tbody          = document.getElementById('tablaInventario')
-const inputBuscar    = document.getElementById('inputBuscar')
+const tbody           = document.getElementById('tablaInventario')
+const inputBuscar     = document.getElementById('inputBuscar')
 const filtroCategoria = document.getElementById('filtroCategoria')
-const filtroStock    = document.getElementById('filtroStock')
+const filtroStock     = document.getElementById('filtroStock')
 
-// ── Resumen ──────────────────────────────────────────────
+let productosDB = []
+
+// ── Resumen ───────────────────────────────────────────────────────
 function actualizarResumen(lista) {
   document.getElementById('resTotal').textContent = lista.reduce((s, p) => s + p.cantidad, 0)
   document.getElementById('resMedio').textContent = lista.filter(p => p.estado === 'warn').length
   document.getElementById('resBajo').textContent  = lista.filter(p => p.estado === 'low').length
 }
 
-// ── Renderizar tabla ─────────────────────────────────────
+// ── Renderizar tabla ──────────────────────────────────────────────
 function renderizar(lista) {
   tbody.innerHTML = ''
   actualizarResumen(lista)
@@ -36,15 +39,15 @@ function renderizar(lista) {
   if (lista.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align:center;color:#C8A88A;padding:24px">
+        <td colspan="5" style="text-align:center;color:#C8A88A;padding:24px">
           Sin resultados
         </td>
       </tr>`
     return
   }
 
-  lista.forEach((p, i) => {
-    const { texto, clase } = etiquetas[p.estado]
+  lista.forEach(p => {
+    const { texto, clase } = etiquetas[p.estado] || etiquetas['ok']
     const fila = document.createElement('tr')
     fila.innerHTML = `
       <td>${p.nombre}</td>
@@ -52,38 +55,18 @@ function renderizar(lista) {
       <td>${p.cantidad}</td>
       <td>$${p.precio.toFixed(2)}</td>
       <td><span class="badge ${clase}">${texto}</span></td>
-      <td>
-        <button class="btn-editar" data-index="${i}" title="Editar">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
-               viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-               aria-hidden="true">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-        </button>
-      </td>
     `
     tbody.appendChild(fila)
   })
-
-  // Botón editar — funcionalidad pendiente
-  document.querySelectorAll('.btn-editar').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = btn.dataset.index
-      // TODO: implementar funcionalidad de edición
-      console.log('Editar producto:', productos[idx])
-    })
-  })
 }
 
-// ── Filtros ──────────────────────────────────────────────
+// ── Filtros ───────────────────────────────────────────────────────
 function filtrar() {
   const texto     = inputBuscar.value.toLowerCase()
   const categoria = filtroCategoria.value
   const stock     = filtroStock.value
 
-  const lista = productos.filter(p => {
+  const lista = productosDB.filter(p => {
     const coincideTexto     = p.nombre.toLowerCase().includes(texto)
     const coincideCategoria = categoria ? p.categoria === categoria : true
     const coincideStock     = stock     ? p.estado    === stock     : true
@@ -97,11 +80,52 @@ inputBuscar.addEventListener('input', filtrar)
 filtroCategoria.addEventListener('change', filtrar)
 filtroStock.addEventListener('change', filtrar)
 
-// ── Agregar producto — pendiente ─────────────────────────
-document.getElementById('btnAgregar').addEventListener('click', () => {
-  // TODO: abrir modal de agregar producto
-  console.log('Agregar producto')
-})
+// ── Poblar selector de categorías dinámicamente ───────────────────
+function poblarCategorias(productos) {
+  const cats = [...new Set(productos.map(p => p.categoria))].sort()
+  filtroCategoria.innerHTML = '<option value="">Todas las categorías</option>'
+  cats.forEach(cat => {
+    const opt = document.createElement('option')
+    opt.value       = cat
+    opt.textContent = cat
+    filtroCategoria.appendChild(opt)
+  })
+}
 
-// ── Carga inicial ────────────────────────────────────────
-renderizar(productos)
+// ── Carga desde BD ────────────────────────────────────────────────
+async function cargarInventario() {
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" style="text-align:center;color:#C8A88A;padding:24px">
+        Cargando...
+      </td>
+    </tr>`
+
+  const data = await python('inventario')
+
+  if (!data || !Array.isArray(data)) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;color:#C0392B;padding:24px">
+          Error al cargar inventario
+        </td>
+      </tr>`
+    return
+  }
+
+  productosDB = data
+  poblarCategorias(productosDB)
+  renderizar(productosDB)
+}
+
+// ── Carga inicial ─────────────────────────────────────────────────
+cargarInventario()
+
+// ── Recargar cuando Python termina la sincronización ─────────────
+const syncSrc = elec ?? window.parent?.electron
+if (syncSrc?.onSyncFinished) {
+  syncSrc.onSyncFinished(() => {
+    console.log('[Inventario] Sync terminado — recargando...')
+    cargarInventario()
+  })
+}

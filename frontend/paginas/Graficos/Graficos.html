@@ -22,36 +22,76 @@
     </div>
   </div>
 
+  <!-- Tooltip popup de ayuda -->
+  <div class="info-popup" id="infoPopup"></div>
+
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <span>Cargando datos...</span>
   </div>
 
   <div class="graficos-grid" id="graficosGrid" style="display:none">
+
     <div class="grafico-card ancho-completo">
-      <div class="grafico-titulo"><span>📈 Ganancias netas</span><span class="grafico-sub">Ingresos vs Costos vs Ganancia</span></div>
+      <div class="grafico-titulo">
+        <span>📈 Ganancias netas
+          <button class="btn-info" data-tip="Compara los ingresos totales por ventas, los costos de los productos vendidos y la ganancia neta resultante. Permite identificar qué períodos fueron más rentables.">?</button>
+        </span>
+        <span class="grafico-sub">Ingresos vs Costos vs Ganancia</span>
+      </div>
       <div class="grafico-wrap alto"><canvas id="cGanancias"></canvas></div>
     </div>
+
     <div class="grafico-card">
-      <div class="grafico-titulo"><span>🛒 Ventas totales</span><span class="grafico-sub">Monto acumulado por periodo</span></div>
+      <div class="grafico-titulo">
+        <span>🛒 Ventas totales
+          <button class="btn-info" data-tip="Muestra el monto total recaudado en ventas por período. Útil para detectar tendencias de crecimiento o caída en la facturación general del negocio.">?</button>
+        </span>
+        <span class="grafico-sub">Monto acumulado por periodo</span>
+      </div>
       <div class="grafico-wrap"><canvas id="cVentas"></canvas></div>
     </div>
+
     <div class="grafico-card">
-      <div class="grafico-titulo"><span>🥧 Venta de productos</span><span class="grafico-sub">Distribución por unidades vendidas</span></div>
+      <div class="grafico-titulo">
+        <span>🥧 Venta de productos
+          <button class="btn-info" data-tip="Distribución porcentual de las unidades vendidas por producto. Permite ver qué artículos tienen mayor salida y cuáles generan menos movimiento.">?</button>
+        </span>
+        <span class="grafico-sub">Distribución por unidades vendidas</span>
+      </div>
       <div class="grafico-wrap"><canvas id="cProductos"></canvas></div>
     </div>
+
     <div class="grafico-card">
-      <div class="grafico-titulo"><span>🏆 Top 5 productos rentables</span><span class="grafico-sub">Ganancia neta por producto</span></div>
+      <div class="grafico-titulo">
+        <span>🏆 Top 5 productos rentables
+          <button class="btn-info" data-tip="Ranking de los 5 productos con mayor ganancia neta en el período seleccionado. La ganancia neta es la diferencia entre el precio de venta y el costo del producto.">?</button>
+        </span>
+        <span class="grafico-sub">Ganancia neta por producto</span>
+      </div>
       <div class="grafico-wrap"><canvas id="cRanking"></canvas></div>
     </div>
+
     <div class="grafico-card">
-      <div class="grafico-titulo"><span>💰 Flujo de caja</span><span class="grafico-sub">Ventas vs Compras a proveedores</span></div>
+      <div class="grafico-titulo">
+        <span>💰 Flujo de caja
+          <button class="btn-info" data-tip="Contrasta los ingresos por ventas contra los gastos en compras a proveedores mes a mes. Un flujo positivo indica que se vendió más de lo que se gastó en restock.">?</button>
+        </span>
+        <span class="grafico-sub">Ventas vs Compras a proveedores</span>
+      </div>
       <div class="grafico-wrap"><canvas id="cFlujo"></canvas></div>
     </div>
+
     <div class="grafico-card ancho-completo">
-      <div class="grafico-titulo"><span>⚠️ Mapa de mermas</span><span class="grafico-sub">Productos con mayor stock y menor rotación</span></div>
+      <div class="grafico-titulo">
+        <span>⚠️ Mapa de mermas
+          <button class="btn-info" data-tip="Muestra productos con alto stock disponible pero baja rotación en los últimos 30 días. Son candidatos a merma o desperdicio si no se incrementan sus ventas.">?</button>
+        </span>
+        <span class="grafico-sub">Productos con mayor stock y menor rotación</span>
+      </div>
       <div class="grafico-wrap"><canvas id="cMermas"></canvas></div>
     </div>
+
   </div>
 
   <script src="Graficos.js"></script>

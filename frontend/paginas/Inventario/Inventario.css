@@ -78,28 +78,6 @@
   outline: none;
 }
 
-.btn-add {
-  height: 36px;
-  padding: 0 16px;
-  background: #8B2E0F;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Segoe UI', sans-serif;
-  white-space: nowrap;
-  transition: background 0.15s;
-}
-
-.btn-add:hover  { background: #A03510; }
-.btn-add:active { background: #6E2409; }
-
 .card {
   background: #F7F3EF;
   border: 1px solid #E0D5C8;
@@ -133,23 +111,3 @@
 
 .tbl tbody tr:last-child td { border-bottom: none; }
 .tbl tbody tr:hover td { background: #EDE8E2; }
-
-.btn-editar {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: 1px solid #E0D5C8;
-  background: #FFFFFF;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #7A6050;
-  transition: background 0.12s, color 0.12s;
-}
-
-.btn-editar:hover {
-  background: #8B2E0F;
-  color: #FFFFFF;
-  border-color: #8B2E0F;
-}

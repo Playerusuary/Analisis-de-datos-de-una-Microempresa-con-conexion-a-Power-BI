@@ -1,6 +1,22 @@
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.fecha-ayer {
+  font-size: 11px;
+  color: #7A6050;
+  background: #F7F3EF;
+  border: 1px solid #E0D5C8;
+  border-radius: 6px;
+  padding: 4px 12px;
+}
+
 .resumen {
   display: grid;
-  grid-template-columns: 220px;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -27,6 +43,10 @@
 
 .res-card.g { border-top: 3px solid #2E7D32; }
 .res-card.g .res-val { color: #2E7D32; }
+.res-card.b { border-top: 3px solid #1565C0; }
+.res-card.b .res-val { color: #1565C0; }
+.res-card.w { border-top: 3px solid #B8860B; }
+.res-card.w .res-val { color: #B8860B; }
 
 .toolbar {
   display: flex;
@@ -61,27 +81,18 @@
 
 .buscar input::placeholder { color: #C8A88A; }
 
-.btn-add {
+.filtro {
   height: 36px;
-  padding: 0 16px;
-  background: #8B2E0F;
-  color: #FFFFFF;
-  border: none;
+  padding: 0 12px;
+  border: 1px solid #E0D5C8;
   border-radius: 8px;
+  background: #F7F3EF;
+  color: #1A0E05;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-family: 'Segoe UI', sans-serif;
-  white-space: nowrap;
-  transition: background 0.15s;
+  cursor: pointer;
+  outline: none;
 }
-
-.btn-add:hover  { background: #A03510; }
-.btn-add:active { background: #6E2409; }
 
 .card {
   background: #F7F3EF;
@@ -123,8 +134,8 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.badge.e { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
-.badge.p { background: #FFF8E1; color: #B8860B; border: 1px solid #FFE082; }
-.badge.c { background: #FFEBEE; color: #C0392B; border: 1px solid #EF9A9A; }
+.badge.efectivo { background: #E3F2FD; color: #1565C0; border: 1px solid #90CAF9; }
+.badge.tarjeta  { background: #FFF8E1; color: #B8860B; border: 1px solid #FFE082; }

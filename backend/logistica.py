@@ -5,7 +5,9 @@ from calculos import (
     rango_semanal, rango_mensual, rango_anual,
     query_resumen_ayer, query_stock_bajo, query_productos_vendidos_ayer,
     query_ganancias, query_ventas, query_ventas_productos,
-    query_ranking, query_flujo_caja, query_mermas
+    query_ranking, query_flujo_caja, query_mermas,
+    query_inventario,
+    query_ventas_tabla, query_ventas_hoy_total
 )
 
 MESES = ['Ene','Feb','Mar','Abr','May','Jun',
@@ -108,6 +110,19 @@ def mermas():
             'stock':    [r[1] for r in rows],
             'vendidos': [r[2] for r in rows]}
 
+def inventario():
+    return query_inventario()
+
+def ventas_tabla(periodo, anio, mes, semana, fecha_inicio=None, fecha_fin=None):
+    if fecha_inicio and fecha_fin:
+        inicio, fin = fecha_inicio, fecha_fin
+    else:
+        inicio, fin = _rango(periodo, anio, mes, semana)
+    return query_ventas_tabla(inicio, fin)
+
+def ventas_hoy():
+    return {'total': query_ventas_hoy_total()}
+
 # ── Entry point ───────────────────────────────────────────
 
 if __name__ == '__main__':
@@ -132,7 +147,14 @@ if __name__ == '__main__':
         'ventas_productos':    lambda: ventas_productos(periodo, anio, mes, semana),
         'ranking':             lambda: ranking(periodo, anio, mes, semana),
         'flujo_caja':          lambda: flujo_caja(periodo, anio, mes, semana),
-        'mermas':              lambda: mermas()
+        'mermas':              lambda: mermas(),
+        'inventario':          lambda: inventario(),
+        'ventas_tabla':        lambda: ventas_tabla(
+                                   periodo, anio, mes, semana,
+                                   sys.argv[6] if len(sys.argv) > 6 else None,
+                                   sys.argv[7] if len(sys.argv) > 7 else None
+                               ),
+        'ventas_hoy':          lambda: ventas_hoy()
     }
 
     if cmd in funciones:

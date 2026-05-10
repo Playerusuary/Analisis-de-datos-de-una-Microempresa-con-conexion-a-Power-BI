@@ -115,3 +115,45 @@
 
 .grafico-wrap { position: relative; height: 220px; }
 .grafico-wrap.alto { height: 260px; }
+/* ── Botón de ayuda ? ───────────────────────────────────── */
+.btn-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #C8A88A;
+  background: #F7F3EF;
+  color: #7A6050;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: 'Segoe UI', sans-serif;
+  cursor: pointer;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.btn-info:hover {
+  background: #8B2E0F;
+  color: #fff;
+  border-color: #8B2E0F;
+}
+
+/* ── Popup de información ───────────────────────────────── */
+.info-popup {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  max-width: 270px;
+  background: #1A0E05;
+  color: #F7F3EF;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  pointer-events: none;
+}

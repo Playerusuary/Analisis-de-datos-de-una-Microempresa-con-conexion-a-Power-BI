@@ -4,26 +4,7 @@ from datetime import datetime, timedelta
 
 # Ruta absoluta — funciona desde cualquier lugar que lo llame Electron
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-def _resolver_db():
-    """
-    Busca simulacion.db subiendo desde la carpeta del script.
-    Jerarquía esperada: <raiz>/backend/calculos.py  →  <raiz>/base/simulacion.db
-    También tolera que la DB esté en el mismo directorio (tests / desarrollo).
-    """
-    candidatos = [
-        os.path.join(BASE_DIR, '..', 'base', 'simulacion.db'),   # producción
-        os.path.join(BASE_DIR, 'simulacion.db'),                  # fallback mismo dir
-        os.path.join(BASE_DIR, '..', 'simulacion.db'),            # fallback raíz
-    ]
-    for ruta in candidatos:
-        ruta = os.path.normpath(ruta)
-        if os.path.exists(ruta):
-            return ruta
-    # Si no se encontró, retornar la ruta esperada en producción (genera error claro)
-    return os.path.normpath(candidatos[0])
-
-DB_PATH = _resolver_db()
+DB_PATH  = os.path.join(BASE_DIR, '..', 'base', 'simulacion.db')
 
 def conectar():
     return sqlite3.connect(DB_PATH)
@@ -232,6 +213,84 @@ def query_flujo_caja(inicio, fin):
     compras_rows = {r[0]: r[1] for r in cur.fetchall()}
     conn.close()
     return ventas_rows, compras_rows
+
+def query_ventas_tabla(fecha_inicio, fecha_fin):
+    conn = conectar()
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT
+            v.id_venta,
+            p.nombre_producto,
+            dv.cantidad,
+            dv.precio_unitario_venta,
+            dv.subtotal,
+            v.metodo_pago,
+            v.fecha_venta
+        FROM ventas v
+        JOIN detalle_ventas dv ON v.id_venta    = dv.id_venta
+        JOIN productos      p  ON dv.id_producto = p.id_producto
+        WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+        ORDER BY v.fecha_venta DESC
+    """, (fecha_inicio, fecha_fin))
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        {
+            'id':       r[0],
+            'producto': r[1],
+            'cantidad': r[2],
+            'precio':   round(r[3], 2),
+            'total':    round(r[4], 2),
+            'metodo':   r[5],
+            'fecha':    r[6]
+        }
+        for r in rows
+    ]
+
+def query_ventas_hoy_total():
+    conn = conectar()
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT COALESCE(SUM(total_venta), 0)
+        FROM ventas
+        WHERE DATE(fecha_venta) = DATE('now')
+          AND estado_venta = 'completada'
+    """)
+    total = round(cur.fetchone()[0], 2)
+    conn.close()
+    return total
+
+def query_inventario():
+    conn = conectar()
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT
+            p.nombre_producto,
+            c.nombre_categoria,
+            a.cantidad_disponible,
+            p.precio_venta,
+            CASE
+                WHEN a.cantidad_disponible < 5  THEN 'low'
+                WHEN a.cantidad_disponible < 10 THEN 'warn'
+                ELSE 'ok'
+            END as estado
+        FROM almacen_stock a
+        JOIN productos  p ON a.id_producto  = p.id_producto
+        JOIN categorias c ON p.id_categoria = c.id_categoria
+        ORDER BY a.cantidad_disponible ASC
+    """)
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        {
+            'nombre':    r[0],
+            'categoria': r[1],
+            'cantidad':  r[2],
+            'precio':    round(r[3], 2),
+            'estado':    r[4]
+        }
+        for r in rows
+    ]
 
 def query_mermas():
     conn = conectar()

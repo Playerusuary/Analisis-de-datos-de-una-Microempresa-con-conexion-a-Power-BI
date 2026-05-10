@@ -1,3 +1,6 @@
+// ── Acceso a electron ─────────────────────────────────────────────
+const elec = window.electron ?? window.parent?.electron
+
 const C = {
   ladrillo: '#8B2E0F', madera: '#6B3A1F',
   dorado:   '#D4A017', verde:  '#2E7D32', rojo: '#C0392B'
@@ -10,57 +13,21 @@ const AÑOS   = [2024, 2025, 2026]
 
 let periodo = 'semanal'
 let selAnio = new Date().getFullYear()
-let selMes  = new Date().getMonth() + 1   // 1-indexed
+let selMes  = new Date().getMonth() + 1
 let selSem  = 1
 let inst    = {}
 
-// ── Llamada a Python ─────────────────────────────────────
+// ── Llamada a Python (BD real) ────────────────────────────────────
 async function llamarPython(cmd) {
-  // En Electron: descomentar esta línea y borrar simularDatos()
-  // return await window.electron.ejecutarPython('logistica.py', [cmd, periodo, selAnio, selMes, selSem])
-  return simularDatos(cmd)
-}
-
-// ── Datos simulados (Live Server) ────────────────────────
-function simularDatos(cmd) {
-  const rand = (a, b) => Math.round(Math.random() * (b - a) + a)
-  const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
-  const diasMes = new Date(selAnio, selMes, 0).getDate()
-  const n = periodo === 'semanal' ? 7 : periodo === 'mensual' ? diasMes : 12
-  const labels = periodo === 'semanal' ? dias
-               : periodo === 'anual'   ? MESES.map(m => m.slice(0,3))
-               : Array.from({length: n}, (_, i) => `${i+1}`)
-
-  if (cmd === 'ganancias') {
-    const ing = labels.map(() => rand(6000, 14000))
-    const cos = ing.map(v => Math.round(v * 0.58))
-    return { labels, ingresos: ing, costos: cos, ganancias: ing.map((v,i) => v - cos[i]) }
-  }
-  if (cmd === 'ventas')
-    return { labels, totales: labels.map(() => rand(2000, 8000)) }
-  if (cmd === 'ventas_productos') {
-    const lb = ['Leche 1L','Arroz 1kg','Refresco','Aceite','Pan','Frijol','Azúcar','Jabón','Atún','Sal']
-    return { labels: lb, unidades: lb.map(() => rand(50, 400)) }
-  }
-  if (cmd === 'ranking') return {
-    labels:    ['Aceite Nutrioli','Arroz Valle','Frijol Verde','Azúcar Zulka','Leche Lala'],
-    ganancias: [rand(3000,6000), rand(2500,5000), rand(2000,4000), rand(1800,3500), rand(1500,3000)],
-    ingresos:  [rand(9000,14000), rand(7000,11000), rand(6000,9000), rand(5000,8000), rand(4000,7000)]
-  }
-  if (cmd === 'flujo_caja') {
-    const lf = periodo === 'anual' ? MESES.map(m => m.slice(0,3)) : labels.slice(0, 6)
-    const v  = lf.map(() => rand(15000, 50000))
-    return { labels: lf, ventas: v, compras: v.map(x => Math.round(x * 0.55)) }
-  }
-  if (cmd === 'mermas') return {
-    labels:   ['Aceite Nutrioli','Sal La Fina','Atún Dolores','Mermelada','Avena',
-               'Mayonesa','Maruchan','Galletas','Café','Leche'],
-    stock:    [80, 65, 55, 50, 45, 42, 38, 35, 30, 28],
-    vendidos: [2, 4, 6, 8, 3, 10, 15, 5, 7, 12]
+  try {
+    return await elec.ejecutarPython('logistica.py', [cmd, periodo, selAnio, selMes, selSem])
+  } catch (err) {
+    console.error(`[Graficos] Error en ${cmd}:`, err)
+    return null
   }
 }
 
-// ── Sub-filtros dinámicos ─────────────────────────────────
+// ── Sub-filtros dinámicos ─────────────────────────────────────────
 function actualizarSubFiltros() {
   const sub = document.getElementById('subFiltros')
   sub.innerHTML = ''
@@ -84,14 +51,17 @@ function actualizarSubFiltros() {
     return s
   }
 
-  const opAnios  = AÑOS.map(a => [a, a])
-  const opMeses  = MESES.map((m, i) => [i + 1, m])
-  const diasMes  = new Date(selAnio, selMes, 0).getDate()
-  const numSems  = Math.ceil(diasMes / 7)
-  const opSems   = Array.from({length: numSems}, (_, i) => [i + 1, `Semana ${i + 1}`])
+  const opAnios = AÑOS.map(a => [a, a])
+  const opMeses = MESES.map((m, i) => [i + 1, m])
+  const diasMes = new Date(selAnio, selMes, 0).getDate()
+  const numSems = Math.ceil(diasMes / 7)
+  const opSems  = Array.from({length: numSems}, (_, i) => [i + 1, `Semana ${i + 1}`])
 
   if (periodo === 'semanal') {
+    // Semanal: año + mes + semana
     sub.append(
+      lbl('Año:'),
+      sel('sAnio', opAnios, selAnio, v => { selAnio = parseInt(v); actualizarSubFiltros(); cargarTodo() }),
       lbl('Mes:'),
       sel('sMes', opMeses, selMes, v => { selMes = parseInt(v); actualizarSubFiltros(); cargarTodo() }),
       lbl('Semana:'),
@@ -112,7 +82,30 @@ function actualizarSubFiltros() {
   }
 }
 
-// ── Opciones base Chart.js ────────────────────────────────
+// ── Popup de ayuda ────────────────────────────────────────────────
+const popup = document.getElementById('infoPopup')
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-info')
+  if (btn) {
+    e.stopPropagation()
+    const rect = btn.getBoundingClientRect()
+    popup.textContent = btn.dataset.tip
+    popup.style.display = 'block'
+    // Posicionar debajo del botón
+    let top  = rect.bottom + window.scrollY + 6
+    let left = rect.left   + window.scrollX
+    // Evitar que se salga por la derecha
+    const maxLeft = window.innerWidth - 280
+    if (left > maxLeft) left = maxLeft
+    popup.style.top  = top  + 'px'
+    popup.style.left = left + 'px'
+  } else {
+    popup.style.display = 'none'
+  }
+})
+
+// ── Opciones base Chart.js ────────────────────────────────────────
 function opBase(pre = '$') {
   return {
     responsive: true, maintainAspectRatio: false,
@@ -132,31 +125,32 @@ function opBase(pre = '$') {
 
 function kill(id) { if (inst[id]) { inst[id].destroy(); delete inst[id] } }
 
-// ── Render de cada gráfico ────────────────────────────────
+// ── Render de cada gráfico ────────────────────────────────────────
 async function renderGanancias() {
   const d = await llamarPython('ganancias')
   kill('g')
+  if (!d || !d.labels) return
   inst.g = new Chart(document.getElementById('cGanancias'), { type: 'bar', data: { labels: d.labels,
     datasets: [
-      { label: 'Ingresos', data: d.ingresos, backgroundColor: C.verde    + 'BB', borderColor: C.verde,    borderWidth: 1 },
-      { label: 'Costos',   data: d.costos,   backgroundColor: C.rojo     + 'BB', borderColor: C.rojo,     borderWidth: 1 },
-      { label: 'Ganancia', data: d.ganancias, backgroundColor: C.dorado  + 'BB', borderColor: C.dorado,   borderWidth: 1 }
-    ]}, options: opBase() })
-}
+      { label: 'Ingresos', data: d.ingresos,  backgroundColor: C.verde   + 'BB', borderColor: C.verde,   borderWidth: 1 },
+      { label: 'Costos',   data: d.costos,    backgroundColor: C.rojo    + 'BB', borderColor: C.rojo,    borderWidth: 1 },
+      { label: 'Ganancia', data: d.ganancias, backgroundColor: C.dorado  + 'BB', borderColor: C.dorado,  borderWidth: 1 }
+    ]}, options: opBase() })}
 
 async function renderVentas() {
   const d = await llamarPython('ventas')
   kill('v')
+  if (!d || !d.labels) return
   inst.v = new Chart(document.getElementById('cVentas'), { type: 'line', data: { labels: d.labels,
     datasets: [{ label: 'Ventas ($)', data: d.totales,
       borderColor: C.ladrillo, backgroundColor: C.ladrillo + '25',
       borderWidth: 2, pointBackgroundColor: C.ladrillo, pointRadius: 3, fill: true, tension: 0.4
-    }]}, options: opBase() })
-}
+    }]}, options: opBase() })}
 
 async function renderProductos() {
   const d = await llamarPython('ventas_productos')
   kill('p')
+  if (!d || !d.labels) return
   inst.p = new Chart(document.getElementById('cProductos'), { type: 'doughnut', data: { labels: d.labels,
     datasets: [{ data: d.unidades, backgroundColor: PALETA, borderColor: '#fff', borderWidth: 2 }]},
     options: { responsive: true, maintainAspectRatio: false,
@@ -168,40 +162,39 @@ async function renderProductos() {
         }}}
       }
     }
-  })
-}
+  })}
 
 async function renderRanking() {
   const d = await llamarPython('ranking')
   kill('r')
+  if (!d || !d.labels) return
   inst.r = new Chart(document.getElementById('cRanking'), { type: 'bar', data: { labels: d.labels,
     datasets: [
       { label: 'Ganancia neta', data: d.ganancias, backgroundColor: C.dorado + 'BB', borderColor: C.dorado, borderWidth: 1 },
       { label: 'Ingresos',      data: d.ingresos,  backgroundColor: C.verde  + 'BB', borderColor: C.verde,  borderWidth: 1 }
-    ]}, options: { ...opBase(), indexAxis: 'y' } })
-}
+    ]}, options: { ...opBase(), indexAxis: 'y' } })}
 
 async function renderFlujo() {
   const d = await llamarPython('flujo_caja')
   kill('f')
+  if (!d || !d.labels) return
   inst.f = new Chart(document.getElementById('cFlujo'), { type: 'line', data: { labels: d.labels,
     datasets: [
-      { label: 'Ventas',   data: d.ventas,   borderColor: C.verde,    backgroundColor: C.verde    + '20', borderWidth: 2, fill: true, tension: 0.4 },
-      { label: 'Compras',  data: d.compras,  borderColor: C.ladrillo, backgroundColor: C.ladrillo + '20', borderWidth: 2, fill: true, tension: 0.4 }
-    ]}, options: opBase() })
-}
+      { label: 'Ventas',  data: d.ventas,  borderColor: C.verde,    backgroundColor: C.verde    + '20', borderWidth: 2, fill: true, tension: 0.4 },
+      { label: 'Compras', data: d.compras, borderColor: C.ladrillo, backgroundColor: C.ladrillo + '20', borderWidth: 2, fill: true, tension: 0.4 }
+    ]}, options: opBase() })}
 
 async function renderMermas() {
   const d = await llamarPython('mermas')
   kill('m')
+  if (!d || !d.labels) return
   inst.m = new Chart(document.getElementById('cMermas'), { type: 'bar', data: { labels: d.labels,
     datasets: [
       { label: 'Stock disponible', data: d.stock,    backgroundColor: C.rojo   + 'BB', borderColor: C.rojo,   borderWidth: 1 },
       { label: 'Vendidos (30d)',   data: d.vendidos, backgroundColor: C.dorado + 'BB', borderColor: C.dorado, borderWidth: 1 }
-    ]}, options: opBase('') })
-}
+    ]}, options: opBase('') })}
 
-// ── Cargar todo ───────────────────────────────────────────
+// ── Cargar todo ───────────────────────────────────────────────────
 async function cargarTodo() {
   document.getElementById('loading').style.display      = 'flex'
   document.getElementById('graficosGrid').style.display = 'none'
@@ -215,7 +208,7 @@ async function cargarTodo() {
   document.getElementById('graficosGrid').style.display = 'grid'
 }
 
-// ── Botones de periodo ────────────────────────────────────
+// ── Botones de periodo ────────────────────────────────────────────
 document.querySelectorAll('.btn-periodo').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.btn-periodo').forEach(b => b.classList.remove('activo'))
@@ -226,6 +219,11 @@ document.querySelectorAll('.btn-periodo').forEach(btn => {
   })
 })
 
-// ── Init ──────────────────────────────────────────────────
+// ── Recargar tras sincronización ──────────────────────────────────
+if (elec?.onSyncFinished) {
+  elec.onSyncFinished(() => cargarTodo())
+}
+
+// ── Init ──────────────────────────────────────────────────────────
 actualizarSubFiltros()
 cargarTodo()
