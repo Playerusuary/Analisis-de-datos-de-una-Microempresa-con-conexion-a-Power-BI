@@ -1,10 +1,27 @@
 import sqlite3
 import os
+import sys
 from datetime import datetime, timedelta
 
-# Ruta absoluta — funciona desde cualquier lugar que lo llame Electron
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH  = os.path.join(BASE_DIR, '..', 'base', 'simulacion.db')
+# Detecta la carpeta raiz correctamente tanto en desarrollo como en .exe
+if getattr(sys, 'frozen', False):
+    base_dir = os.path.dirname(sys.executable)
+else:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+def _resolver_db():
+    candidatos = [
+        os.path.join(base_dir, '..', 'base', 'simulacion.db'),
+        os.path.join(base_dir, 'base', 'simulacion.db'),
+        os.path.join(base_dir, 'simulacion.db'),
+    ]
+    for ruta in candidatos:
+        ruta = os.path.normpath(ruta)
+        if os.path.exists(ruta):
+            return ruta
+    return os.path.normpath(candidatos[0])
+
+DB_PATH = _resolver_db()
 
 def conectar():
     return sqlite3.connect(DB_PATH)
@@ -119,7 +136,7 @@ def rango_mensual(anio, mes):
 def rango_anual(anio):
     return f'{anio}-01-01', f'{anio}-12-31'
 
-# ── Queries gráficos ──────────────────────────────────────
+# ── Queries graficos ──────────────────────────────────────
 
 def query_ganancias(inicio, fin, grupo_fmt):
     conn = conectar()
@@ -192,12 +209,6 @@ def query_ranking(inicio, fin):
     return rows
 
 def query_flujo_caja(inicio, fin, grupo_fmt):
-    """
-    grupo_fmt controla el nivel de agrupación:
-      '%Y-%m-%d'  → por día   (semanal)
-      '%Y-%m-%d'  → por día   (mensual, se etiqueta como día/semana en logistica.py)
-      '%Y-%m'     → por mes   (anual)
-    """
     conn = conectar()
     cur  = conn.cursor()
     cur.execute(f"""
@@ -299,8 +310,6 @@ def query_inventario():
     ]
 
 def query_mermas():
-    """Devuelve productos con merma registrada en inventario_compras,
-    junto con las unidades perdidas y el costo económico de esa merma."""
     conn = conectar()
     cur  = conn.cursor()
     cur.execute("""
