@@ -1,15 +1,22 @@
 import sqlite3
 import random
 import os
+import sys
 from datetime import datetime, timedelta
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+# Detecta la carpeta raiz correctamente tanto en desarrollo como en .exe
+if getattr(sys, 'frozen', False):
+    # Corriendo como .exe compilado por PyInstaller
+    base_dir = os.path.dirname(sys.executable)
+else:
+    # Corriendo como script .py normal
+    base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def _resolver_db_v():
     candidatos = [
         os.path.join(base_dir, '..', 'base', 'simulacion.db'),
+        os.path.join(base_dir, 'base', 'simulacion.db'),
         os.path.join(base_dir, 'simulacion.db'),
-        os.path.join(base_dir, '..', 'simulacion.db'),
     ]
     for ruta in candidatos:
         ruta = os.path.normpath(ruta)
@@ -23,7 +30,7 @@ def catch_up_ventas():
     conn   = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Catálogo de productos
+    # Catalogo de productos
     cursor.execute("SELECT id_producto, precio_venta FROM productos")
     productos_dict = {r[0]: r[1] for r in cursor.fetchall()}
 
@@ -50,13 +57,12 @@ def catch_up_ventas():
     fecha_hoy = datetime.now()
 
     if fecha_inicio.date() > fecha_hoy.date():
-        print("La base de datos ya está al día.")
+        print("La base de datos ya esta al dia.")
         conn.close()
         return
 
     print(f"Generando ventas desde {fecha_inicio.date()} hasta {fecha_hoy.date()}...")
 
-    # Limpiar ventas sin detalle que quedaron de ejecuciones anteriores
     cursor.execute("""
         DELETE FROM ventas WHERE id_venta NOT IN (
             SELECT DISTINCT id_venta FROM detalle_ventas
@@ -64,7 +70,7 @@ def catch_up_ventas():
     """)
     eliminadas = cursor.rowcount
     if eliminadas > 0:
-        print(f"Ventas vacías eliminadas: {eliminadas}")
+        print(f"Ventas vacias eliminadas: {eliminadas}")
 
     actual = fecha_inicio
 
@@ -107,7 +113,6 @@ def catch_up_ventas():
                     VALUES (?, ?, ?, ?, ?)
                 """, (id_venta, p_id, cant, precio, subtotal))
 
-                # Descontar stock — puede quedar bajo para activar restock
                 cursor.execute("""
                     UPDATE almacen_stock
                     SET cantidad_disponible  = MAX(0, cantidad_disponible - ?),
@@ -126,7 +131,7 @@ def catch_up_ventas():
 
     conn.commit()
     conn.close()
-    print("¡Sincronización de ventas terminada!")
+    print("Sincronizacion de ventas terminada!")
 
 if __name__ == '__main__':
     catch_up_ventas()
