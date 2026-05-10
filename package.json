@@ -31,10 +31,14 @@
       "!backend/dist/**",
       "!backend/build/**",
       "!backend/*.spec"
+    ],
+    "asarUnpack": [
+      "backend/**",
+      "base/**"
     ]
   },
   "devDependencies": {
-    "electron": "^29.4.6",
-    "electron-builder": "^24.13.3"
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
   }
 }
