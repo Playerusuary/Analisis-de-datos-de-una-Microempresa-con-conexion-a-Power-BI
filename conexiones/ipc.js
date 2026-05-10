@@ -48,7 +48,7 @@ ipcMain.handle('descargar-db', async () => {
   const win = BrowserWindow.getFocusedWindow()
   const { filePath } = await dialog.showSaveDialog(win, {
     title:       'Guardar base de datos',
-    defaultPath: 'logistica.db',
+    defaultPath: 'la-lonja-del-vecino.db',
     filters:     [{ name: 'SQLite Database', extensions: ['db'] }]
   })
 

@@ -191,24 +191,30 @@ def query_ranking(inicio, fin):
     conn.close()
     return rows
 
-def query_flujo_caja(inicio, fin):
+def query_flujo_caja(inicio, fin, grupo_fmt):
+    """
+    grupo_fmt controla el nivel de agrupación:
+      '%Y-%m-%d'  → por día   (semanal)
+      '%Y-%m-%d'  → por día   (mensual, se etiqueta como día/semana en logistica.py)
+      '%Y-%m'     → por mes   (anual)
+    """
     conn = conectar()
     cur  = conn.cursor()
     cur.execute(f"""
-        SELECT strftime('%Y-%m', fecha_venta) as mes,
-               SUM(total_venta)               as ventas
+        SELECT strftime('{grupo_fmt}', fecha_venta) as periodo,
+               SUM(total_venta)                     as ventas
         FROM ventas
         WHERE fecha_venta BETWEEN '{inicio}' AND '{fin} 23:59:59'
-        GROUP BY mes ORDER BY mes
+        GROUP BY periodo ORDER BY periodo
     """)
     ventas_rows = {r[0]: r[1] for r in cur.fetchall()}
 
     cur.execute(f"""
-        SELECT strftime('%Y-%m', fecha_compra) as mes,
-               SUM(costo_total_compra)          as compras
+        SELECT strftime('{grupo_fmt}', fecha_compra) as periodo,
+               SUM(costo_total_compra)               as compras
         FROM inventario_compras
         WHERE fecha_compra BETWEEN '{inicio}' AND '{fin} 23:59:59'
-        GROUP BY mes ORDER BY mes
+        GROUP BY periodo ORDER BY periodo
     """)
     compras_rows = {r[0]: r[1] for r in cur.fetchall()}
     conn.close()
@@ -293,19 +299,22 @@ def query_inventario():
     ]
 
 def query_mermas():
+    """Devuelve productos con merma registrada en inventario_compras,
+    junto con las unidades perdidas y el costo económico de esa merma."""
     conn = conectar()
     cur  = conn.cursor()
     cur.execute("""
-        SELECT p.nombre_producto,
-               a.cantidad_disponible,
-               COALESCE(SUM(dv.cantidad), 0) as vendidos_30d
-        FROM almacen_stock a
-        JOIN productos p ON a.id_producto = p.id_producto
-        LEFT JOIN detalle_ventas dv ON dv.id_producto = p.id_producto
-        LEFT JOIN ventas v ON dv.id_venta = v.id_venta
-            AND v.fecha_venta >= date('now', '-30 days')
-        GROUP BY a.id_producto
-        ORDER BY vendidos_30d ASC LIMIT 10
+        SELECT
+            p.nombre_producto,
+            SUM(ic.unidades_merma)                                               AS total_merma,
+            ROUND(
+                SUM(ic.unidades_merma * (ic.costo_total_compra / ic.unidades_totales))
+            , 2)                                                                  AS perdida_dinero
+        FROM inventario_compras ic
+        JOIN productos p ON ic.id_producto = p.id_producto
+        WHERE ic.unidades_merma > 0
+        GROUP BY ic.id_producto
+        ORDER BY perdida_dinero DESC
     """)
     rows = cur.fetchall()
     conn.close()

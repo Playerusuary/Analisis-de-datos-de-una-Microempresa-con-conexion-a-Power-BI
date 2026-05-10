@@ -1,8 +1,20 @@
+/* ── Centrado completo de la página ── */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
 .export-card {
   background: #F7F3EF;
   border: 1px solid #E0D5C8;
   border-radius: 12px;
   padding: 40px 32px;
+  width: 100%;
   max-width: 480px;
   display: flex;
   flex-direction: column;
@@ -92,7 +104,7 @@
 /* ── Modal ── */
 .modal-overlay {
   display: none;
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgba(26, 14, 5, 0.5);
   align-items: center;
@@ -218,3 +230,5 @@
   line-height: 1.6;
   margin-top: 4px;
 }
+
+@keyframes girar { to { transform: rotate(360deg); } }

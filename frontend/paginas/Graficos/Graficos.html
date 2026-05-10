@@ -65,7 +65,7 @@
     <div class="grafico-card">
       <div class="grafico-titulo">
         <span>🏆 Top 5 productos rentables
-          <button class="btn-info" data-tip="Ranking de los 5 productos con mayor ganancia neta en el período seleccionado. La ganancia neta es la diferencia entre el precio de venta y el costo del producto.">?</button>
+          <button class="btn-info" data-tip="Muestra los 5 productos que generaron mayor ganancia neta en el período. Para cada producto se comparan sus ingresos totales, el costo de lo vendido y la ganancia resultante. El tooltip indica además el margen de ganancia (%) para saber si el producto es rentable aunque sus ingresos parezcan bajos.">?</button>
         </span>
         <span class="grafico-sub">Ganancia neta por producto</span>
       </div>
@@ -75,7 +75,7 @@
     <div class="grafico-card">
       <div class="grafico-titulo">
         <span>💰 Flujo de caja
-          <button class="btn-info" data-tip="Contrasta los ingresos por ventas contra los gastos en compras a proveedores mes a mes. Un flujo positivo indica que se vendió más de lo que se gastó en restock.">?</button>
+          <button class="btn-info" data-tip="Muestra las ventas del negocio frente a las compras realizadas a proveedores en el mismo período. En vista semanal se desglosa por día, en mensual por día del mes y en anual por mes. La línea dorada indica el flujo neto: si es positiva el negocio generó más de lo que gastó; si es negativa, los gastos superaron las ventas. Los puntos rojos en la línea señalan días o meses con flujo negativo.">?</button>
         </span>
         <span class="grafico-sub">Ventas vs Compras a proveedores</span>
       </div>
@@ -85,9 +85,9 @@
     <div class="grafico-card ancho-completo">
       <div class="grafico-titulo">
         <span>⚠️ Mapa de mermas
-          <button class="btn-info" data-tip="Muestra productos con alto stock disponible pero baja rotación en los últimos 30 días. Son candidatos a merma o desperdicio si no se incrementan sus ventas.">?</button>
+          <button class="btn-info" data-tip="Lista los productos que llegaron con unidades dañadas o en mal estado al momento de la compra a proveedores. La barra izquierda (roja) muestra cuántas unidades se perdieron; la barra derecha (café) muestra el dinero perdido calculado como unidades con merma × costo unitario. Úsalo para identificar qué proveedores o productos generan más desperdicio económico.">?</button>
         </span>
-        <span class="grafico-sub">Productos con mayor stock y menor rotación</span>
+        <span class="grafico-sub">Unidades perdidas y pérdida económica por producto</span>
       </div>
       <div class="grafico-wrap"><canvas id="cMermas"></canvas></div>
     </div>

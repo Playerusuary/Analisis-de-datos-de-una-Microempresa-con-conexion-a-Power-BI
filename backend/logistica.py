@@ -90,25 +90,45 @@ def ranking(periodo, anio, mes, semana):
             'ganancias': [r2(r[3]) for r in rows]}
 
 def flujo_caja(periodo, anio, mes, semana):
-    inicio, fin   = _rango(periodo, anio, mes, semana)
-    ventas_d, compras_d = query_flujo_caja(inicio, fin)
-    meses = sorted(set(list(ventas_d.keys()) + list(compras_d.keys())))
+    inicio, fin = _rango(periodo, anio, mes, semana)
+
+    # Agrupación y etiquetado según período
+    if periodo == 'semanal':
+        fmt_sql = '%Y-%m-%d'   # por día
+    elif periodo == 'mensual':
+        fmt_sql = '%Y-%m-%d'   # por día (todo el mes)
+    else:
+        fmt_sql = '%Y-%m'      # por mes (todo el año)
+
+    ventas_d, compras_d = query_flujo_caja(inicio, fin, fmt_sql)
+    claves = sorted(set(list(ventas_d.keys()) + list(compras_d.keys())))
+
     labels, ventas_l, compras_l = [], [], []
-    for m in meses:
+    for c in claves:
+        # Formatear etiqueta legible
         try:
-            d = datetime.strptime(m, '%Y-%m')
-            labels.append(MESES[d.month - 1])
-        except:
-            labels.append(m)
-        ventas_l.append(r2(ventas_d.get(m, 0)))
-        compras_l.append(r2(compras_d.get(m, 0)))
+            if periodo == 'semanal':
+                d = datetime.strptime(c, '%Y-%m-%d')
+                labels.append(DIAS[d.weekday()])          # Lun, Mar…
+            elif periodo == 'mensual':
+                d = datetime.strptime(c, '%Y-%m-%d')
+                labels.append(d.strftime('%d/%m'))        # 01/06, 02/06…
+            else:
+                d = datetime.strptime(c, '%Y-%m')
+                labels.append(MESES[d.month - 1])         # Ene, Feb…
+        except Exception:
+            labels.append(c)
+
+        ventas_l.append(r2(ventas_d.get(c, 0)))
+        compras_l.append(r2(compras_d.get(c, 0)))
+
     return {'labels': labels, 'ventas': ventas_l, 'compras': compras_l}
 
 def mermas():
     rows = query_mermas()
-    return {'labels':   [r[0] for r in rows],
-            'stock':    [r[1] for r in rows],
-            'vendidos': [r[2] for r in rows]}
+    return {'labels':  [r[0] for r in rows],
+            'merma':   [r[1] for r in rows],
+            'perdida': [r2(r[2]) for r in rows]}
 
 def inventario():
     return query_inventario()

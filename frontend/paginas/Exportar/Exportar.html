@@ -26,8 +26,9 @@
 
     <h2 class="export-titulo">Base de datos</h2>
     <p class="export-desc">
-      Descarga el archivo <strong>logistica.db</strong> con todos los datos
-      actuales del sistema listos para conectar con Power BI.
+      Descarga el archivo <strong>la-lonja-del-vecino.db</strong> con todos los registros
+      de ventas, inventario y compras actualizados al último día con actividad.
+      Úsalo para conectarlo directamente a Power BI Desktop.
     </p>
 
     <button class="btn-descargar" id="btnDescargar">
@@ -75,17 +76,20 @@
       <div class="modal-cuerpo">
 
         <p class="modal-intro">
-          Puedes conectar Power BI directamente al archivo <strong>logistica.db</strong>
-          para obtener reportes en tiempo real cada vez que abras o actualices el reporte.
+          Sigue estos pasos para conectar el archivo <strong>la-lonja-del-vecino.db</strong>
+          a Power BI Desktop y visualizar los datos del negocio. Solo necesitas
+          hacer la configuración una vez; después basta con hacer clic en
+          <strong>Actualizar</strong> cada vez que quieras ver datos nuevos.
         </p>
 
         <div class="paso">
           <div class="paso-num">1</div>
           <div class="paso-texto">
-            <p class="paso-titulo">Descarga el conector ODBC para SQLite</p>
+            <p class="paso-titulo">Descarga e instala el driver ODBC para SQLite</p>
             <p class="paso-desc">
-              Instala el driver <strong>SQLite ODBC Driver</strong> desde
-              <em>sqliteodbc.com</em>. Es gratuito y compatible con Windows.
+              Ve a <strong>sqliteodbc.com</strong> y descarga el instalador
+              <em>sqliteodbc.exe</em> (versión de 64 bits si tu Windows es de 64 bits).
+              Ejecuta el instalador y acepta las opciones por defecto. No requiere reiniciar.
             </p>
           </div>
         </div>
@@ -93,10 +97,12 @@
         <div class="paso">
           <div class="paso-num">2</div>
           <div class="paso-texto">
-            <p class="paso-titulo">Abre Power BI Desktop</p>
+            <p class="paso-titulo">Guarda el archivo de base de datos</p>
             <p class="paso-desc">
-              Ve a <strong>Inicio → Obtener datos → ODBC</strong>.
-              En el menú desplegable selecciona el driver de SQLite que instalaste.
+              Usa el botón <strong>Descargar base de datos</strong> y guarda el archivo
+              <em>la-lonja-del-vecino.db</em> en una carpeta fija de tu computadora, por ejemplo:
+              <code>C:\PowerBI\la-lonja-del-vecino.db</code>
+              Recuerda esa ruta — la necesitarás en el paso 4.
             </p>
           </div>
         </div>
@@ -104,10 +110,11 @@
         <div class="paso">
           <div class="paso-num">3</div>
           <div class="paso-texto">
-            <p class="paso-titulo">Apunta al archivo logistica.db</p>
+            <p class="paso-titulo">Abre Power BI Desktop y selecciona la fuente de datos</p>
             <p class="paso-desc">
-              En la cadena de conexión escribe la ruta completa al archivo,
-              por ejemplo: <code>Database=C:\ruta\base\logistica.db</code>
+              En la barra superior ve a <strong>Inicio → Obtener datos → Más…</strong>
+              En el buscador escribe <em>ODBC</em>, selecciónalo y haz clic en
+              <strong>Conectar</strong>.
             </p>
           </div>
         </div>
@@ -115,10 +122,14 @@
         <div class="paso">
           <div class="paso-num">4</div>
           <div class="paso-texto">
-            <p class="paso-titulo">Selecciona las tablas</p>
+            <p class="paso-titulo">Configura la cadena de conexión</p>
             <p class="paso-desc">
-              Power BI mostrará todas las tablas disponibles. Selecciona las que
-              necesites — inventario, ventas, órdenes — y haz clic en <strong>Cargar</strong>.
+              En el menú desplegable elige <em>SQLite3 Datasource</em>. Si no aparece,
+              selecciona <strong>(Ninguno)</strong> y en
+              <em>Opciones avanzadas → Cadena de conexión</em> escribe exactamente:
+              <code>Driver=SQLite3 ODBC Driver;Database=C:\PowerBI\la-lonja-del-vecino.db</code>
+              Cambia la ruta si guardaste el archivo en otro lugar. Haz clic en
+              <strong>Aceptar</strong>.
             </p>
           </div>
         </div>
@@ -126,20 +137,36 @@
         <div class="paso">
           <div class="paso-num">5</div>
           <div class="paso-texto">
-            <p class="paso-titulo">Actualización en tiempo real</p>
+            <p class="paso-titulo">Selecciona las tablas que necesitas</p>
             <p class="paso-desc">
-              Cada vez que abras el reporte en Power BI Desktop haz clic en
-              <strong>Actualizar</strong> para traer los datos más recientes del sistema.
-              Para automatizarlo, configura una <strong>Actualización programada</strong>
-              desde Power BI Service.
+              Power BI mostrará el Navegador con todas las tablas disponibles:
+              <em>ventas</em>, <em>detalle_ventas</em>, <em>productos</em>,
+              <em>inventario_compras</em>, <em>almacen_stock</em>, <em>categorias</em>.
+              Marca las que vayas a usar en tus reportes y haz clic en
+              <strong>Cargar</strong> (o <strong>Transformar datos</strong> si quieres
+              revisar antes con Power Query).
+            </p>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">6</div>
+          <div class="paso-texto">
+            <p class="paso-titulo">Actualiza los datos cuando quieras</p>
+            <p class="paso-desc">
+              Cada vez que descargues una versión nueva de <em>la-lonja-del-vecino.db</em>
+              y la guardes <strong>en la misma ruta</strong>, basta con abrir el
+              reporte en Power BI Desktop y presionar <strong>Inicio → Actualizar</strong>
+              para que todos los gráficos reflejen los datos más recientes.
             </p>
           </div>
         </div>
 
         <div class="modal-nota">
-          El archivo <strong>logistica.db</strong> debe estar accesible desde
-          la misma computadora donde corre Power BI. Si lo mueves de ubicación,
-          deberás actualizar la ruta de conexión.
+          <strong>Importante:</strong> el archivo <em>la-lonja-del-vecino.db</em> debe permanecer
+          siempre en la misma ruta que configuraste. Si lo mueves o renombras, Power BI
+          perderá la conexión y tendrás que actualizar la cadena de conexión en
+          <strong>Inicio → Transformar datos → Configuración del origen de datos</strong>.
         </div>
 
       </div>
